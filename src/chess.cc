@@ -1,9 +1,10 @@
 #include <iostream>
 #include <cstdio>
-#include <string.h>
+#include <algorithm>
+#include <string>
+#include <map>
 #include "../inc/traceAndError.hh"
 #include "../inc/errorCodes.hh"
-#include "game.hh"
 
 /**
 *    @name neural network chess player
@@ -18,29 +19,56 @@
 *    2019
 */
 
+enum class Modes
+{
+  PLAY,
+  LEARN,
+  //...
+  INVALID_MODE
+};
+
+Modes resolveMode(std::string input)
+{
+     const std::map<std::string, Modes> modeStrings
+  {
+      { "play", Modes::PLAY },
+      { "learn", Modes::LEARN },
+      //...
+  };
+
+  transform(input.begin(), input.end(), input.begin(), ::tolower);
+
+  auto itr = modeStrings.find(input);
+  if( itr != modeStrings.end() )
+  {
+    return itr->second;
+  }
+
+  return Modes::INVALID_MODE;
+}
+
 int main (int argc, char* argv[])
 {
   if (argc != 2)
   {
-    TRACE_FATAL_ERROR(ERROR_WRONG_ARGS_NUMBER,
-                      "Wrong number of input args!", NULL);
+    FATAL_ERROR(ERROR_WRONG_ARGS_NUMBER,
+    "Wrong number of input args!", NULL);
   }
 
-  if (strncmp(argv[1], "play", (unsigned)sizeof(argv[1])) == 0)
+  switch (resolveMode(argv[1]))
   {
-    ;
-  }
+  case Modes::PLAY:
+    std::cout << "play DUPA";
+    break;
 
-  else if (strncmp(argv[1], "learn", (unsigned)sizeof(argv[1])) == 0)
-  {
-
-  }
-
-  else
-  {
-    TRACE_FATAL_ERROR(ERROR_MODE_DOESNT_EXIST,
-                      "Mode '%s' doesnt exist! Please try play/learn",
-                      argv[1]);
+  case Modes::LEARN:
+    std::cout << "learn DUPA";
+    break;
+  
+  default:
+    FATAL_ERROR(ERROR_MODE_DOESNT_EXIST,
+                "Invalid mode! Please try play/learn", NULL);
+    break;
   }
 
   return EXIT_SUCCESS;
