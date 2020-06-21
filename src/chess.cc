@@ -3,6 +3,7 @@
 #include <algorithm>
 #include <string>
 #include <map>
+#include "../inc/game.hh"
 #include "../inc/traceAndError.hh"
 #include "../inc/errorCodes.hh"
 
@@ -19,6 +20,8 @@
 *    2019
 */
 
+static Game *game;
+
 enum class Modes
 {
   PLAY,
@@ -27,7 +30,21 @@ enum class Modes
   INVALID_MODE
 };
 
-Modes resolveMode(std::string input)
+void run_game()
+{
+  game = new Game();
+
+  if (game == nullptr)
+  {
+    FATAL_ERROR(ERROR_CANNOT_INIT_GAME,
+    "Cannot init game engine!", NULL);
+  }
+    game -> run_game();
+
+  return;
+}
+
+Modes resolve_mode(std::string input)
 {
      const std::map<std::string, Modes> modeStrings
   {
@@ -49,16 +66,16 @@ Modes resolveMode(std::string input)
 
 int main (int argc, char* argv[])
 {
-  if (argc != 2)
+  if (argc != 2)  
   {
     FATAL_ERROR(ERROR_WRONG_ARGS_NUMBER,
     "Wrong number of input args!", NULL);
   }
 
-  switch (resolveMode(argv[1]))
+  switch (resolve_mode(argv[1]))
   {
   case Modes::PLAY:
-    std::cout << "play DUPA";
+    run_game();
     break;
 
   case Modes::LEARN:

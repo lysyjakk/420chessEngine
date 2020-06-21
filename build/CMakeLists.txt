@@ -8,4 +8,6 @@ project(NeuralChess)
 add_executable(
   NeuralChess
   ../src/chess.cc
+  ../src/game.cc
+  ../src/consoleLogger.cc
 )
