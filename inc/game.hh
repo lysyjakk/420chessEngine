@@ -9,6 +9,10 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
+#include <signal.h>
+#include <unistd.h>
+#include <cstring>
+#include <atomic>
 #include "../inc/traceAndError.hh"
 #include "../inc/errorCodes.hh"
 #include "../inc/consoleLogger.hh"

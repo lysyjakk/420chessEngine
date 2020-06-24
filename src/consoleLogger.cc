@@ -8,19 +8,41 @@
 
 /* > Methods ******************************************************************/
 
+ConsoleLogger::ConsoleLogger()
+{
+  m_is_initializated = false;
+  m_console_filename = "";
+}
+
+ConsoleLogger::~ConsoleLogger()
+{
+  if (m_is_initializated)
+  {
+    TRACE_INFO("Closing (%s) terminal", m_console_filename.c_str());
+
+  // Close terminal window
+    system((std::string("ps -ft ") + m_console_filename +
+            std::string(" -o pid | grep [0-9] | xargs kill -9")).c_str());
+  }
+}
+
 void ConsoleLogger::init()
 {
+
+  TRACE_INFO("Initializate console logger...");
+
   if (!std::ifstream(SHARE_FILE))
   {
-    TRACE_WARNING("%s doesn't exist! Creating file...", SHARE_FILE, NULL);
+    TRACE_WARNING("%s doesn't exist! Creating file...", SHARE_FILE);
   }
   
-  std::ifstream file(SHARE_FILE);
+  std::fstream file;
+  file.open(SHARE_FILE, std::fstream::in | std::fstream::out | std::fstream::trunc);
 
   if (!file)
   {
-    FATAL_ERROR(ERROR_CANNOT_CREATE_FILE, "Cannot open %s file!",
-                SHARE_FILE, NULL);
+    FATAL_ERROR(ERROR_CANNOT_ACCESS_TO_FILE, "Cannot open %s file!",
+                SHARE_FILE);
   }
 
   system("gnome-terminal -e \"bash -c \\\"tty > " SHARE_FILE "; exec bash\\\"\"");
@@ -28,24 +50,17 @@ void ConsoleLogger::init()
   std::getline(file, m_console_filename);
   file.close();
 
+  m_is_initializated = true;
+
   std::this_thread::sleep_for(std::chrono::milliseconds(100));
 
   this -> clear();
+
+  return;
 }
 
-void ConsoleLogger::clear()
+inline void ConsoleLogger::clear() const
 {
   system((std::string("clear > ") + m_console_filename).c_str());
-}
-
-void ConsoleLogger::print(const std::string& format, Args ... args)
-{
-    size_t size = snprintf( nullptr, 0, format.c_str(), args ... ) + 1; // Extra space for '\0'
-    if (size <= 0)
-    {
-      FATAL_ERROR(ERROR_DURING_FORMATTING, "Error during formatting!", NULL);
-    }
-    std::unique_ptr<char[]> buf( new char[ size ] ); 
-    snprintf( buf.get(), size, format.c_str(), args ... );
-    std::cout << std::string( buf.get(), buf.get() + size - 1 );
-}
+  return;
+} 

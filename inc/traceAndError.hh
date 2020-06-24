@@ -40,42 +40,42 @@
                                            __FUNCTION__,                                   \
                                            __LINE__,                                       \
                                            level,                                          \
-                                           __VA_ARGS__ )
+                                           ##__VA_ARGS__ )
 
 
-#define TRACE_INFO( format, ... )                      \
-          { printf(COLOR_TRACE_DEFAULT);               \
-            TRACE("INFO",   format, __VA_ARGS__);      \
-            printf(COLOR_RESET);                       \
+#define TRACE_INFO( format, ... )                        \
+          { printf(COLOR_TRACE_DEFAULT);                 \
+            TRACE("INFO", format, ##__VA_ARGS__);        \
+            printf(COLOR_RESET);                         \
           }
 
-#define TRACE_WARNING( format, ... )                   \
-          {                                            \
-            printf(COLOR_TRACE_WARNING);               \
-            TRACE("WARNING",   format, __VA_ARGS__);   \
-            printf(COLOR_RESET);                       \
+#define TRACE_WARNING( format, ... )                     \
+          {                                              \
+            printf(COLOR_TRACE_WARNING);                 \
+            TRACE("WARNING", format, ##__VA_ARGS__);     \
+            printf(COLOR_RESET);                         \
           }
 
-#define TRACE_ERROR( format, ... )                     \
-          { printf(COLOR_TRACE_ERROR);                 \
-            TRACE("ERROR",   format, __VA_ARGS__);     \
-            printf(COLOR_RESET);                       \
+#define TRACE_ERROR( format, ... )                       \
+          { printf(COLOR_TRACE_ERROR);                   \
+            TRACE("ERROR", format, ##__VA_ARGS__);       \
+            printf(COLOR_RESET);                         \
           }
 
-#define FATAL_ERROR( error_code, format, ... )         \
-          {                                            \
-            printf(COLOR_TRACE_ERROR);                 \
-            TRACE("FATAL ERROR", format, __VA_ARGS__); \
-            printf(COLOR_RESET);                       \
-            exit(error_code);                          \
+#define FATAL_ERROR( error_code, format, ... )           \
+          {                                              \
+            printf(COLOR_TRACE_ERROR);                   \
+            TRACE("FATAL ERROR", format, ##__VA_ARGS__); \
+            printf(COLOR_RESET);                         \
+            exit(error_code);                            \
           }
 
 #ifndef DEBUG_MODE
-  #define TRACE_DEBUG( format, ... )                   \
-          {                                            \
-            printf(COLOR_TRACE_DEFAULT);               \
-            TRACE("DEBUG",   format, __VA_ARGS__);     \
-            printf(COLOR_RESET);                       \
+  #define TRACE_DEBUG( format, ... )                     \
+          {                                              \
+            printf(COLOR_TRACE_DEFAULT);                 \
+            TRACE("DEBUG", format, ##__VA_ARGS__);       \
+            printf(COLOR_RESET);                         \
           }
 #endif
 

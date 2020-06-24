@@ -14,7 +14,8 @@ typedef high_resolution_clock Time;
 
 /* > Global Variables *********************************************************/
 
-
+static ConsoleLogger console_logger;
+atomic<bool> quit(false);    // signal flag
 
 /* > Local Functions **********************************************************/
 
@@ -24,6 +25,11 @@ static long get_ms(auto time)
   auto value = now_in_ms.time_since_epoch();
 
   return value.count();
+}
+
+static void got_SIGINT_signal(int)
+{
+    quit.store(true);
 }
 
 /* > Methods ******************************************************************/
@@ -39,10 +45,16 @@ void Game::game_loop()
   double   last_fps_time  = 0;
   uint16_t fps            = 0;
 
-  ConsoleLogger *console_logger = new ConsoleLogger();
-  console_logger -> init();
-  //console_logger -> print("DUPA %s", "blada");
-/*  while(true)
+//SIGINT handler
+  struct sigaction sa;
+  memset(&sa, 0, sizeof(sa));
+  sa.sa_handler = got_SIGINT_signal;
+  sigfillset(&sa.sa_mask);
+  sigaction(SIGINT,&sa,NULL);
+
+  console_logger.init();
+
+  while(true)
   {
     auto now = Time::now();
     long update_duration = get_ms(now) - get_ms(last_loop_time);
@@ -53,14 +65,9 @@ void Game::game_loop()
 
     if (last_fps_time >= ONE_SEC_IN_MS)
     {
-      #ifdef WINDOWS
-        system("cls");
-      #else
-        system("clear");
-      #endif // WINDOWS
-
-      cout << "FPS: " << fps << endl;
-
+      console_logger.clear();
+      console_logger.print("FPS: %d", fps);
+      TRACE_INFO("DUPA");
       last_fps_time = 0;
       fps = 0;
     }
@@ -68,6 +75,12 @@ void Game::game_loop()
     this_thread::sleep_for(
       milliseconds(
         (get_ms(last_loop_time) - get_ms(Time::now()) + OPTIMAL_TIME)/ONE_SEC_IN_MS));
+    
+    //Check if SIGINT recived.
+    if( quit.load() )
+    {
+      TRACE_ERROR("Received SIGINT signal! Closing the program...");
+      break;
+    }
   }
-*/
 }

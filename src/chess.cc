@@ -37,7 +37,7 @@ void run_game()
   if (game == nullptr)
   {
     FATAL_ERROR(ERROR_CANNOT_INIT_GAME,
-    "Cannot init game engine!", NULL);
+    "Cannot init game engine!");
   }
     game -> run_game();
 
@@ -69,7 +69,7 @@ int main (int argc, char* argv[])
   if (argc != 2)  
   {
     FATAL_ERROR(ERROR_WRONG_ARGS_NUMBER,
-    "Wrong number of input args!", NULL);
+    "Wrong number of input args!");
   }
 
   switch (resolve_mode(argv[1]))
@@ -84,7 +84,7 @@ int main (int argc, char* argv[])
   
   default:
     FATAL_ERROR(ERROR_MODE_DOESNT_EXIST,
-                "Invalid mode! Please try play/learn", NULL);
+                "Invalid mode! Please try play/learn");
     break;
   }
 
