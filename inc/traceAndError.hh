@@ -33,13 +33,13 @@
 #define __FILENAME__ (strrchr("/" __FILE__, '/') + 1)
 
 #define TRACE( level, format, ... ) printf( "\n| %02d:%02d:%02d | %s::%s(%d) [%s]: " format, \
-                                           time_str -> tm_hour,                            \
-                                           time_str -> tm_min,                             \
-                                           time_str -> tm_sec,                             \
-                                           __FILENAME__,                                   \
-                                           __FUNCTION__,                                   \
-                                           __LINE__,                                       \
-                                           level,                                          \
+                                           time_str -> tm_hour,                              \
+                                           time_str -> tm_min,                               \
+                                           time_str -> tm_sec,                               \
+                                           __FILENAME__,                                     \
+                                           __FUNCTION__,                                     \
+                                           __LINE__,                                         \
+                                           level,                                            \
                                            ##__VA_ARGS__ )
 
 

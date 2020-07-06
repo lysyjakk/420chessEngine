@@ -53,7 +53,7 @@ void Game::game_loop()
   sigaction(SIGINT,&sa,NULL);
 
   console_logger.init();
-
+TRACE_INFO("Cos");
   while(true)
   {
     auto now = Time::now();
@@ -68,6 +68,7 @@ void Game::game_loop()
       console_logger.clear();
       console_logger.print("FPS: %d", fps);
       TRACE_INFO("DUPA");
+      fprintf(stdout, "%s", "message 2, on stdout (using fprintf)\n");
       last_fps_time = 0;
       fps = 0;
     }
