@@ -39,7 +39,10 @@ void run_game()
     FATAL_ERROR(ERROR_CANNOT_INIT_GAME,
     "Cannot init game engine!");
   }
-    game -> run_game();
+
+  game -> init("Chess", SDL_WINDOWPOS_CENTERED, SDL_WINDOWPOS_CENTERED,
+                854, 854, false);
+  game -> run_game();
 
   return;
 }

@@ -17,6 +17,14 @@ typedef high_resolution_clock Time;
 static ConsoleLogger console_logger;
 atomic<bool> quit(false);    // signal flag
 
+//SDL Textures
+SDL_Texture *board_tex;
+SDL_Texture *field_selection_tex;
+/*SDL_Texture *queen_tex;
+SDL_Texture *bishop_tex;
+SDL_Texture *rook_tex;
+SDL_Texture *horse_tex;*/
+
 /* > Local Functions **********************************************************/
 
 static long get_ms(auto time)
@@ -53,7 +61,7 @@ void Game::game_loop()
   sigaction(SIGINT,&sa,NULL);
 
   console_logger.init();
-TRACE_INFO("Cos");
+
   while(true)
   {
     auto now = Time::now();
@@ -67,11 +75,12 @@ TRACE_INFO("Cos");
     {
       console_logger.clear();
       console_logger.print("FPS: %d", fps);
-      TRACE_INFO("DUPA");
-      fprintf(stdout, "%s", "message 2, on stdout (using fprintf)\n");
+      
       last_fps_time = 0;
       fps = 0;
     }
+
+    this -> render();
 
     this_thread::sleep_for(
       milliseconds(
@@ -84,4 +93,62 @@ TRACE_INFO("Cos");
       break;
     }
   }
+}
+
+void Game::init(const char* title,
+                uint16_t    x_pos,
+                uint16_t    y_pos,
+                uint16_t    width,
+                uint16_t    height,
+                bool        fullscreen)
+{
+  m_is_game_running = false;
+
+  if (SDL_Init(SDL_INIT_EVERYTHING) == 0)
+  {
+    TRACE_INFO("SDL Initialised...");
+    m_window = SDL_CreateWindow(title,
+                              x_pos,
+                              y_pos,
+                              width,
+                              height,
+                              (fullscreen ? SDL_WINDOW_FULLSCREEN : 0));
+
+    if (m_window == NULL)
+    {
+      FATAL_ERROR(ERROR_FAILED_TO_INIT_SDL,
+                  "Failed to init SDL window: %s", SDL_GetError());
+    }
+
+    TRACE_INFO("Window created");
+    m_renderer = SDL_CreateRenderer(m_window, -1, 0);
+
+    if(m_renderer == NULL)
+    {
+      FATAL_ERROR(ERROR_FAILED_TO_INIT_SDL,
+                  "Failed to init SDL renderer: %s", SDL_GetError());
+    }
+
+    SDL_SetRenderDrawColor(m_renderer, 255, 255, 255, 255);
+    TRACE_INFO("Renderer created");
+    
+    m_is_game_running = true;
+    TRACE_INFO("SDL initialization successful");
+  }
+
+  TRACE_INFO("Loading textures...");
+
+  board_tex           = TextureManager::LoadTexture(CHESS_BOARD_TEX, m_renderer);
+  field_selection_tex = TextureManager::LoadTexture(FIELD_SELECTION_TEX, m_renderer);
+
+  TRACE_INFO("Textures loaded successful");
+
+  return;
+}
+
+void Game::render()
+{
+  SDL_RenderClear(m_renderer);
+  SDL_RenderCopy(m_renderer, board_tex, NULL, NULL);
+  SDL_RenderPresent(m_renderer);
 }

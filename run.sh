@@ -22,7 +22,7 @@ echo ""
 
 #BUILD
 cmake ./
-make | tee ${LOGS_DIR}/buildLogs.log
+make #| tee ${LOGS_DIR}/buildLogs.log
 
 sleep 0.5
 
@@ -35,4 +35,4 @@ echo "${BLACK_FONT} ${WHITE_BG}-------------------------------------------------
 echo ""
 
 #RUN PROGRAM
-${BUILD_DIR}/NeuralChess $1 2>&1 | tee ${LOGS_DIR}/logs.log
+${BUILD_DIR}/NeuralChess $1 #2>&1 | tee ${LOGS_DIR}/logs.log

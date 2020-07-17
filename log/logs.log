@@ -1,0 +1,27 @@
+message 2, on stdout (using fprintf)
+message 2, on stdout (using fprintf)
+message 2, on stdout (using fprintf)
+message 2, on stdout (using fprintf)
+message 2, on stdout (using fprintf)
+sh: 1: cannot create /dev/pts/18: Permission denied
+sh: 1: cannot create /dev/pts/18: Permission denied
+błąd: nie znaleziono TTY
+
+Składnia:
+ ps [opcje]
+
+ Polecenie 'ps --pomoc <prosta|lista|format|wątki|inne|całość>'
+       lub 'ps --pomoc <p|l|f|w|i|c>'
+ wypisze dodatkowy tekst pomocy.
+
+Więcej szczegółów w ps(1).
+[1;97m
+| 12:29:35 | consoleLogger.cc::init(32) [INFO]: Initializate console logger...[0m[1;97m
+| 12:29:35 | game.cc::game_loop(56) [INFO]: Cos[0m[1;97m
+| 12:29:35 | game.cc::game_loop(70) [INFO]: DUPA[0m[1;97m
+| 12:29:35 | game.cc::game_loop(70) [INFO]: DUPA[0m[1;97m
+| 12:29:35 | game.cc::game_loop(70) [INFO]: DUPA[0m[1;97m
+| 12:29:35 | game.cc::game_loop(70) [INFO]: DUPA[0m[1;97m
+| 12:29:35 | game.cc::game_loop(70) [INFO]: DUPA[0m[1;97;41m
+| 12:29:35 | consoleLogger.hh::print(49) [FATAL ERROR]: Cannot acess to /dev/pts/18 ![0m[1;97m
+| 12:29:35 | consoleLogger.cc::~ConsoleLogger(21) [INFO]: Closing (/dev/pts/18) terminal[0m
