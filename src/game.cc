@@ -14,16 +14,30 @@ typedef high_resolution_clock Time;
 
 /* > Global Variables *********************************************************/
 
+static GameManager   game_manager;
 static ConsoleLogger console_logger;
+
 atomic<bool> quit(false);    // signal flag
 
 //SDL Textures
 SDL_Texture *board_tex;
 SDL_Texture *field_selection_tex;
-/*SDL_Texture *queen_tex;
-SDL_Texture *bishop_tex;
-SDL_Texture *rook_tex;
-SDL_Texture *horse_tex;*/
+
+//White Pieces
+SDL_Texture *w_queen_tex;
+SDL_Texture *w_bishop_tex;
+SDL_Texture *w_rook_tex;
+SDL_Texture *w_knight_tex;
+SDL_Texture *w_king_tex;
+SDL_Texture *w_pawn_tex;
+
+//Black Pieces
+SDL_Texture *b_queen_tex;
+SDL_Texture *b_bishop_tex;
+SDL_Texture *b_rook_tex;
+SDL_Texture *b_knight_tex;
+SDL_Texture *b_king_tex;
+SDL_Texture *b_pawn_tex;
 
 /* > Local Functions **********************************************************/
 
@@ -38,13 +52,18 @@ static long get_ms(auto time)
 static void got_SIGINT_signal(int)
 {
     quit.store(true);
+    return;
 }
 
 /* > Methods ******************************************************************/
 
 void Game::run_game()
 {
+  game_manager.start_new_game();
+
   this -> game_loop();
+
+  return;
 }
 
 void Game::game_loop()
@@ -62,7 +81,7 @@ void Game::game_loop()
 
   console_logger.init();
 
-  while(true)
+  while(m_is_game_running == true)
   {
     auto now = Time::now();
     long update_duration = get_ms(now) - get_ms(last_loop_time);
@@ -80,6 +99,7 @@ void Game::game_loop()
       fps = 0;
     }
 
+    this -> handle_event();
     this -> render();
 
     this_thread::sleep_for(
@@ -93,13 +113,17 @@ void Game::game_loop()
       break;
     }
   }
+
+  this -> clean();
+
+  return;
 }
 
 void Game::init(const char* title,
-                uint16_t    x_pos,
-                uint16_t    y_pos,
-                uint16_t    width,
-                uint16_t    height,
+                uint32_t    x_pos,
+                uint32_t    y_pos,
+                uint32_t    width,
+                uint32_t    height,
                 bool        fullscreen)
 {
   m_is_game_running = false;
@@ -141,6 +165,20 @@ void Game::init(const char* title,
   board_tex           = TextureManager::LoadTexture(CHESS_BOARD_TEX, m_renderer);
   field_selection_tex = TextureManager::LoadTexture(FIELD_SELECTION_TEX, m_renderer);
 
+  w_queen_tex  = TextureManager::LoadTexture(WHITE_QUEEN_TEX, m_renderer);
+  w_bishop_tex = TextureManager::LoadTexture(WHITE_BISHOP_TEX, m_renderer);
+  w_rook_tex   = TextureManager::LoadTexture(WHITE_ROOK_TEX, m_renderer);
+  w_knight_tex = TextureManager::LoadTexture(WHITE_KNIGHT_TEX, m_renderer);
+  w_king_tex   = TextureManager::LoadTexture(WHITE_KING_TEX, m_renderer);
+  w_pawn_tex   = TextureManager::LoadTexture(WHITE_PAWN_TEX, m_renderer);
+
+  b_queen_tex  = TextureManager::LoadTexture(BLACK_QUEEN_TEX, m_renderer);
+  b_bishop_tex = TextureManager::LoadTexture(BLACK_BISHOP_TEX, m_renderer);
+  b_rook_tex   = TextureManager::LoadTexture(BLACK_ROOK_TEX, m_renderer);
+  b_knight_tex = TextureManager::LoadTexture(BLACK_KNIGHT_TEX, m_renderer);
+  b_king_tex   = TextureManager::LoadTexture(BLACK_KING_TEX, m_renderer);
+  b_pawn_tex   = TextureManager::LoadTexture(BLACK_PAWN_TEX, m_renderer);
+
   TRACE_INFO("Textures loaded successful");
 
   return;
@@ -150,5 +188,137 @@ void Game::render()
 {
   SDL_RenderClear(m_renderer);
   SDL_RenderCopy(m_renderer, board_tex, NULL, NULL);
+
+  this -> place_all_pieces();
+
   SDL_RenderPresent(m_renderer);
+
+  return;
+}
+
+void Game::set_piece_img_size(uint8_t x_pos, uint8_t y_pos)
+{
+  this -> m_src_rect.w = 99;
+  this -> m_src_rect.h = 99;
+  this -> m_src_rect.x = 0;
+  this -> m_src_rect.y = 0;
+
+  this -> m_dest_rect.x = 28 + (x_pos * 100);
+  this -> m_dest_rect.y = 27 + (y_pos * 100);
+  this -> m_dest_rect.w = this -> m_src_rect.w;
+  this -> m_dest_rect.h = this -> m_src_rect.h;
+
+  return;
+}
+
+void Game::place_all_pieces()
+{
+  ChessBoard temp_board = game_manager.get_chess_board();
+
+  for (uint8_t row = 0; row < MAX_BOARD_ROWS; ++row)
+  {
+    for (uint8_t column = 0; column < MAX_BOARD_COLUMNS; ++column)
+    {
+
+      if (temp_board[row][column].first == nullptr)
+      {
+        //continue;
+      }
+      
+      switch (temp_board[row][column].second)
+      {
+      // White pieces
+      case WHITE_PAWN:
+        this -> set_piece_img_size(column, row);
+        SDL_RenderCopy(m_renderer, w_pawn_tex, &m_src_rect, &m_dest_rect);
+      break;
+      case WHITE_ROOK:
+        this -> set_piece_img_size(column, row);
+        SDL_RenderCopy(m_renderer, w_rook_tex, &m_src_rect, &m_dest_rect);
+      break;
+      case WHITE_KNIGHT:
+        this -> set_piece_img_size(column, row);
+        SDL_RenderCopy(m_renderer, w_knight_tex, &m_src_rect, &m_dest_rect);
+      break;
+      case WHITE_BISHOP:
+        this -> set_piece_img_size(column, row);
+        SDL_RenderCopy(m_renderer, w_bishop_tex, &m_src_rect, &m_dest_rect);
+      break;
+      case WHITE_QUEEN:
+        this -> set_piece_img_size(column, row);
+        SDL_RenderCopy(m_renderer, w_queen_tex, &m_src_rect, &m_dest_rect);
+      break;
+      case WHITE_KING:
+        this -> set_piece_img_size(column, row);
+        SDL_RenderCopy(m_renderer, w_king_tex, &m_src_rect, &m_dest_rect);
+      break;
+
+    // Black pieces
+      case BLACK_PAWN:
+        this -> set_piece_img_size(column, row);
+        SDL_RenderCopy(m_renderer, b_pawn_tex, &m_src_rect, &m_dest_rect);
+      break;
+      case BLACK_ROOK:
+        this -> set_piece_img_size(column, row);
+        SDL_RenderCopy(m_renderer, b_rook_tex, &m_src_rect, &m_dest_rect);
+      break;
+      case BLACK_KNIGHT:
+        this -> set_piece_img_size(column, row);
+        SDL_RenderCopy(m_renderer, b_knight_tex, &m_src_rect, &m_dest_rect);
+      break;
+      case BLACK_BISHOP:
+        this -> set_piece_img_size(column, row);
+        SDL_RenderCopy(m_renderer, b_bishop_tex, &m_src_rect, &m_dest_rect);
+      break;
+      case BLACK_QUEEN:
+        this -> set_piece_img_size(column, row);
+        SDL_RenderCopy(m_renderer, b_queen_tex, &m_src_rect, &m_dest_rect);
+      break;
+      case BLACK_KING:
+        this -> set_piece_img_size(column, row);
+        SDL_RenderCopy(m_renderer, b_king_tex, &m_src_rect, &m_dest_rect);
+      break;
+
+      case NONE:
+      break;
+
+      default:
+        break;
+      }
+    }
+  }
+
+  return;
+}
+
+void Game::handle_event()
+{
+  SDL_Event event;
+
+  while(SDL_PollEvent(&event))
+  {
+    switch (event.type)
+    {
+    case SDL_MOUSEBUTTONDOWN:
+      TRACE_INFO("Click!");
+    break;
+
+    case SDL_QUIT:
+      m_is_game_running = false;
+    break;
+    }
+  }
+
+  return;
+}
+
+void Game::clean() const
+{
+  SDL_DestroyWindow(m_window);
+  SDL_DestroyRenderer(m_renderer);
+  SDL_Quit();
+
+  TRACE_INFO("Game cleaned");
+
+  return;
 }

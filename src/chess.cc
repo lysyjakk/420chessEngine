@@ -49,7 +49,7 @@ void run_game()
 
 Modes resolve_mode(std::string input)
 {
-     const std::map<std::string, Modes> modeStrings
+  const std::map<std::string, Modes> modeStrings
   {
       { "play", Modes::PLAY },
       { "learn", Modes::LEARN },

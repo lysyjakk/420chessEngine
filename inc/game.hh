@@ -13,6 +13,7 @@
 #include "../inc/errorCodes.hh"
 #include "../inc/consoleLogger.hh"
 #include "../inc/textureManager.hh"
+#include "../inc/gameManager.hh"
 
 using namespace std;
 using namespace chrono;
@@ -25,15 +26,19 @@ public:
 
   void run_game();
   void init(const char* title,
-            uint16_t    x_pos,
-            uint16_t    y_pos,
-            uint16_t    width,
-            uint16_t    height,
+            uint32_t    x_pos,
+            uint32_t    y_pos,
+            uint32_t    width,
+            uint32_t    height,
             bool        fullscreen);
 
 private:
   void game_loop();
-  void render();
+  void render()        ;
+  void set_piece_img_size(uint8_t x_pos, uint8_t y_pos);
+  void place_all_pieces();
+  void clean()         const;
+  void handle_event();
 
   bool m_is_game_running;
 

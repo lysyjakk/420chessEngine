@@ -9,18 +9,16 @@ project(NeuralChess)
 find_package(SDL2 REQUIRED)
 find_package(SDL2_image REQUIRED)
 
-#find_file(SDL2_INCLUDE_DIRS NAME SDL.h HINTS SDL2)
-#find_library(SDL2_LIBRARIES NAME SDL2)
-
 add_executable(
   NeuralChess
   ../src/chess.cc
   ../src/game.cc
   ../src/consoleLogger.cc
   ../src/textureManager.cc
+  ../src/gameManager.cc
+  ../src/pieces.cc
 )
 
 include_directories(${SDL2_INCLUDE_DIRS} ${SDL2_IMAGE_INCLUDE_DIRS})
 
-#target_include_directories(NeuralChess ${SDL2_INCLUDE_DIRS})
 target_link_libraries(NeuralChess ${SDL2_LIBRARIES} ${SDL2_IMAGE_LIBRARIES})
