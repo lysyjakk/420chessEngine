@@ -12,10 +12,27 @@
 
 typedef high_resolution_clock Time;
 
+/* > Structs ******************************************************************/
+
+struct FieldSelectionPosition
+{
+  uint32_t x;
+  uint32_t y;
+} field_selction_pos;
+
+struct SelectedPiece
+{
+  uint32_t x;
+  uint32_t y;
+} selected_piece;
+
+
 /* > Global Variables *********************************************************/
 
 static GameManager   game_manager;
 static ConsoleLogger console_logger;
+
+static bool is_piece_grabbed = false;
 
 atomic<bool> quit(false);    // signal flag
 
@@ -94,7 +111,7 @@ void Game::game_loop()
     {
       console_logger.clear();
       console_logger.print("FPS: %d", fps);
-      
+
       last_fps_time = 0;
       fps = 0;
     }
@@ -189,6 +206,12 @@ void Game::render()
   SDL_RenderClear(m_renderer);
   SDL_RenderCopy(m_renderer, board_tex, NULL, NULL);
 
+  if (is_piece_grabbed == true)
+  {
+    set_img_size(field_selction_pos.x, field_selction_pos.y, 100, 100);
+    SDL_RenderCopy(m_renderer, field_selection_tex, &m_src_rect, &m_dest_rect);
+  }
+
   this -> place_all_pieces();
 
   SDL_RenderPresent(m_renderer);
@@ -196,15 +219,18 @@ void Game::render()
   return;
 }
 
-void Game::set_piece_img_size(uint8_t x_pos, uint8_t y_pos)
+void Game::set_img_size(uint32_t x_pos,
+                        uint32_t y_pos,
+                        uint32_t width,
+                        uint32_t height)
 {
-  this -> m_src_rect.w = 99;
-  this -> m_src_rect.h = 99;
+  this -> m_src_rect.w = width;
+  this -> m_src_rect.h = height;
   this -> m_src_rect.x = 0;
   this -> m_src_rect.y = 0;
 
-  this -> m_dest_rect.x = 28 + (x_pos * 100);
-  this -> m_dest_rect.y = 27 + (y_pos * 100);
+  this -> m_dest_rect.x = x_pos;
+  this -> m_dest_rect.y = y_pos;
   this -> m_dest_rect.w = this -> m_src_rect.w;
   this -> m_dest_rect.h = this -> m_src_rect.h;
 
@@ -219,70 +245,73 @@ void Game::place_all_pieces()
   {
     for (uint8_t column = 0; column < MAX_BOARD_COLUMNS; ++column)
     {
+      uint32_t x_pos = column;
+      uint32_t y_pos = row;
 
-      if (temp_board[row][column].first == nullptr)
-      {
-        //continue;
-      }
-      
+      this -> board_to_fixed_pos(x_pos, y_pos);
+
       switch (temp_board[row][column].second)
       {
       // White pieces
       case WHITE_PAWN:
-        this -> set_piece_img_size(column, row);
+        this -> set_img_size(x_pos, y_pos, 99, 99);
         SDL_RenderCopy(m_renderer, w_pawn_tex, &m_src_rect, &m_dest_rect);
       break;
       case WHITE_ROOK:
-        this -> set_piece_img_size(column, row);
+        this -> set_img_size(x_pos, y_pos, 99, 99);
         SDL_RenderCopy(m_renderer, w_rook_tex, &m_src_rect, &m_dest_rect);
       break;
       case WHITE_KNIGHT:
-        this -> set_piece_img_size(column, row);
+        this -> set_img_size(x_pos, y_pos, 99, 99);
         SDL_RenderCopy(m_renderer, w_knight_tex, &m_src_rect, &m_dest_rect);
       break;
       case WHITE_BISHOP:
-        this -> set_piece_img_size(column, row);
+        this -> set_img_size(x_pos, y_pos, 99, 99);
         SDL_RenderCopy(m_renderer, w_bishop_tex, &m_src_rect, &m_dest_rect);
       break;
       case WHITE_QUEEN:
-        this -> set_piece_img_size(column, row);
+        this -> set_img_size(x_pos, y_pos, 99, 99);
         SDL_RenderCopy(m_renderer, w_queen_tex, &m_src_rect, &m_dest_rect);
       break;
       case WHITE_KING:
-        this -> set_piece_img_size(column, row);
+        this -> set_img_size(x_pos, y_pos, 99, 99);
         SDL_RenderCopy(m_renderer, w_king_tex, &m_src_rect, &m_dest_rect);
       break;
 
     // Black pieces
       case BLACK_PAWN:
-        this -> set_piece_img_size(column, row);
+        this -> set_img_size(x_pos, y_pos, 99, 99);
         SDL_RenderCopy(m_renderer, b_pawn_tex, &m_src_rect, &m_dest_rect);
       break;
       case BLACK_ROOK:
-        this -> set_piece_img_size(column, row);
+        this -> set_img_size(x_pos, y_pos, 99, 99);
         SDL_RenderCopy(m_renderer, b_rook_tex, &m_src_rect, &m_dest_rect);
       break;
       case BLACK_KNIGHT:
-        this -> set_piece_img_size(column, row);
+        this -> set_img_size(x_pos, y_pos, 99, 99);
         SDL_RenderCopy(m_renderer, b_knight_tex, &m_src_rect, &m_dest_rect);
       break;
       case BLACK_BISHOP:
-        this -> set_piece_img_size(column, row);
+        this -> set_img_size(x_pos, y_pos, 99, 99);
         SDL_RenderCopy(m_renderer, b_bishop_tex, &m_src_rect, &m_dest_rect);
       break;
       case BLACK_QUEEN:
-        this -> set_piece_img_size(column, row);
+        this -> set_img_size(x_pos, y_pos, 99, 99);
         SDL_RenderCopy(m_renderer, b_queen_tex, &m_src_rect, &m_dest_rect);
       break;
       case BLACK_KING:
-        this -> set_piece_img_size(column, row);
+        this -> set_img_size(x_pos, y_pos, 99, 99);
         SDL_RenderCopy(m_renderer, b_king_tex, &m_src_rect, &m_dest_rect);
       break;
 
       case NONE:
+        continue;
       break;
 
       default:
+        FATAL_ERROR(ERROR_INVALID_VARIABLE,
+          "Invalid variable (%i) in chess board array!",
+          temp_board[row][column].second);
         break;
       }
     }
@@ -300,11 +329,44 @@ void Game::handle_event()
     switch (event.type)
     {
     case SDL_MOUSEBUTTONDOWN:
-      TRACE_INFO("Click!");
+      if (event.button.button == SDL_BUTTON_LEFT)
+      {
+        if (is_piece_grabbed == false)
+        {
+          is_piece_grabbed = true;
+
+          selected_piece.x = (uint32_t)event.button.x;
+          selected_piece.y = (uint32_t)event.button.y;
+
+          this -> fixed_to_board_pos(selected_piece.x, selected_piece.y);
+        }
+        else if (is_piece_grabbed == true)
+        {
+          is_piece_grabbed = false;
+
+          fixed_to_board_pos(field_selction_pos.x, field_selction_pos.y);
+          game_manager.move_piece(selected_piece.x,
+                                  selected_piece.y,
+                                  field_selction_pos.x,
+                                  field_selction_pos.y);
+        }
+      }
     break;
 
     case SDL_QUIT:
       m_is_game_running = false;
+    break;
+
+    default:
+      if (is_piece_grabbed == true)
+      {
+        field_selction_pos.x = event.button.x;
+        field_selction_pos.y = event.button.y;
+
+        fixed_to_board_pos(field_selction_pos.x, field_selction_pos.y);
+        board_to_fixed_pos(field_selction_pos.x, field_selction_pos.y);
+      }
+
     break;
     }
   }
@@ -319,6 +381,29 @@ void Game::clean() const
   SDL_Quit();
 
   TRACE_INFO("Game cleaned");
+
+  return;
+}
+
+// We need to convert event coordinators to board coordinators.
+// We have to do it in such a way that every picture nicely coincides
+// with the picture of the board.
+//
+//                          ATTENTION!
+// In this method we are loosing event coordinators for ever.
+
+inline void Game::fixed_to_board_pos(uint32_t &x, uint32_t &y) const
+{
+  x = (uint32_t)((x - 27) / 100);
+  y = (uint32_t)((y - 27) / 100);
+
+  return;
+}
+
+inline void Game::board_to_fixed_pos(uint32_t &x, uint32_t &y) const
+{
+  x = 27 + (x * 100);
+  y = 27 + (y * 100);
 
   return;
 }

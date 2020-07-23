@@ -106,7 +106,25 @@ void GameManager::start_new_game()
   return;
 }
 
-ChessBoard GameManager::get_chess_board()
+void GameManager::move_piece(uint8_t x_src,
+                             uint8_t y_src,
+                             uint8_t x_dest,
+                             uint8_t y_dest)
+{
+  m_chess_board[y_src][x_src].first -> move(x_dest, y_dest);
+
+  m_chess_board[y_dest][x_dest] = m_chess_board[y_src][x_src];
+  m_chess_board[y_src][x_src] = std::make_pair(nullptr, NONE);
+
+  return;
+}
+
+ChessBoard GameManager::get_chess_board() const
 {
   return m_chess_board;
+}
+
+bool GameManager::check_valid_of_move(Pieces *piece) const
+{
+  
 }

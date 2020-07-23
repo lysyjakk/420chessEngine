@@ -34,11 +34,19 @@ public:
 
 private:
   void game_loop();
-  void render()        ;
-  void set_piece_img_size(uint8_t x_pos, uint8_t y_pos);
+  void render();
   void place_all_pieces();
-  void clean()         const;
   void handle_event();
+
+  void set_img_size(uint32_t x_pos,
+                    uint32_t y_pos,
+                    uint32_t width,
+                    uint32_t height);
+
+  inline void fixed_to_board_pos(uint32_t &x, uint32_t &y) const;
+  inline void board_to_fixed_pos(uint32_t &x, uint32_t &y) const;
+
+  void clean() const;
 
   bool m_is_game_running;
 

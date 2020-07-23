@@ -16,8 +16,10 @@ enum class Opponent
 class Pieces
 {
 public:
-  Pieces(uint32_t x_pos, uint32_t y_pos, uint8_t weight, Opponent opponent);
+  Pieces(uint8_t x_pos, uint8_t y_pos, uint8_t weight, Opponent opponent);
   ~Pieces() = default;
+
+  void move(uint8_t x, uint8_t y);
 
 protected:
   // basic information about piece
@@ -25,14 +27,14 @@ protected:
 
   uint8_t m_weight;
 
-  uint32_t m_x_pos;
-  uint32_t m_y_pos;
+  uint8_t m_x_pos;
+  uint8_t m_y_pos;
 };
 
 class King : public Pieces
 {
 public:
-  King(uint32_t x_pos, uint32_t y_pos, uint8_t weight, Opponent opponent) : 
+  King(uint8_t x_pos, uint8_t y_pos, uint8_t weight, Opponent opponent) : 
         Pieces(x_pos, y_pos, weight, opponent) {};
   ~King() = default;
 };
@@ -40,7 +42,7 @@ public:
 class Queen : public Pieces
 {
 public:
-  Queen(uint32_t x_pos, uint32_t y_pos, uint8_t weight, Opponent opponent) : 
+  Queen(uint8_t x_pos, uint8_t y_pos, uint8_t weight, Opponent opponent) : 
          Pieces(x_pos, y_pos, weight, opponent) {};
   ~Queen() = default;
 };
@@ -48,7 +50,7 @@ public:
 class Rook : public Pieces
 {
 public:
-  Rook(uint32_t x_pos, uint32_t y_pos, uint8_t weight, Opponent opponent) : 
+  Rook(uint8_t x_pos, uint8_t y_pos, uint8_t weight, Opponent opponent) : 
         Pieces(x_pos, y_pos, weight, opponent) {};
   ~Rook() = default;
 };
@@ -56,7 +58,7 @@ public:
 class Bishop : public Pieces
 {
 public:
-  Bishop(uint32_t x_pos, uint32_t y_pos, uint8_t weight, Opponent opponent) : 
+  Bishop(uint8_t x_pos, uint8_t y_pos, uint8_t weight, Opponent opponent) : 
           Pieces(x_pos, y_pos, weight, opponent) {};
   ~Bishop() = default;
 };
@@ -64,7 +66,7 @@ public:
 class Knight : public Pieces
 {
 public:
-  Knight(uint32_t x_pos, uint32_t y_pos, uint8_t weight, Opponent opponent) : 
+  Knight(uint8_t x_pos, uint8_t y_pos, uint8_t weight, Opponent opponent) : 
           Pieces(x_pos, y_pos, weight, opponent) {};
   ~Knight() = default;
 };
@@ -72,7 +74,7 @@ public:
 class Pawn : public Pieces
 {
 public:
-  Pawn(uint32_t x_pos, uint32_t y_pos, uint8_t weight, Opponent opponent) : 
+  Pawn(uint8_t x_pos, uint8_t y_pos, uint8_t weight, Opponent opponent) : 
         Pieces(x_pos, y_pos, weight, opponent) {};
   ~Pawn() = default;
 };

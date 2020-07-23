@@ -40,10 +40,16 @@ public:
   ~GameManager() = default;
 
   void       start_new_game();
-  ChessBoard get_chess_board();
+  void       move_piece(uint8_t x_src,
+                        uint8_t y_src,
+                        uint8_t x_dest,
+                        uint8_t y_dest);
+  ChessBoard get_chess_board() const;
 
 private:
   ChessBoard m_chess_board;
+
+  bool check_valid_of_move(Pieces *piece) const;
 };
 
 #endif // GAMEMANAGER_H_INCLUDED
