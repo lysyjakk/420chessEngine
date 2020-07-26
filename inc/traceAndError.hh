@@ -1,10 +1,12 @@
 #ifndef __TRACEANDERROR_H_
 #define __TRACEANDERROR_H_
 
-#include <ctime>
+/* > Includes *****************************************************************/
+
+#include <sys/time.h>
 #include <string.h>
 
-/* > DEFINES ******************************************************************/
+/* > Defines ******************************************************************/
 
 //////////////// COLORS ////////////////////
 
@@ -32,15 +34,15 @@
 
 #define __FILENAME__ (strrchr("/" __FILE__, '/') + 1)
 
-#define TRACE( level, format, ... ) printf( "\n| %02d:%02d:%02d | %s::%s(%d) [%s]: " format, \
-                                           time_str -> tm_hour,                              \
-                                           time_str -> tm_min,                               \
-                                           time_str -> tm_sec,                               \
-                                           __FILENAME__,                                     \
-                                           __FUNCTION__,                                     \
-                                           __LINE__,                                         \
-                                           level,                                            \
-                                           ##__VA_ARGS__ )
+#define TRACE( level, format, ... )                         \
+          get_current_timestamp();                          \
+          printf( "\n<%s> %s::%s(%d) [%s]: " format,        \
+                                             timestamp,     \
+                                             __FILENAME__,  \
+                                             __FUNCTION__,  \
+                                             __LINE__,      \
+                                            level,          \
+                                            ##__VA_ARGS__ );
 
 
 #define TRACE_INFO( format, ... )                        \
@@ -79,9 +81,24 @@
           }
 #endif
 
-/* > LOCAL VARIABLES **********************************************************/
+/* > Local Variables **********************************************************/
 
-static std::time_t time_now = std::time(nullptr);
-static struct tm* time_str  = std::localtime(&time_now);
+static char timestamp[64];
+
+/* > Local Functions **********************************************************/
+
+static void get_current_timestamp()
+{
+  char format[64];
+  struct timeval tv;
+  struct tm *tm;
+
+  gettimeofday (&tv, NULL);
+  tm = localtime (&tv.tv_sec);
+  strftime (format, sizeof (format), "%H:%M:%S:%%06u", tm);
+  snprintf (timestamp, sizeof (timestamp), format, tv.tv_usec);
+
+  return;
+}
 
 #endif //__TRACEANDERROR_H_

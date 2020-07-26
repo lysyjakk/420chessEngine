@@ -6,6 +6,10 @@
 
 #define SHARE_FILE PROJECT_ROOT "data/consoleLogger"
 
+/* > Local Functions Declaration **********************************************/
+
+inline bool dir_exists (const std::string& name);
+
 /* > Methods ******************************************************************/
 
 ConsoleLogger::ConsoleLogger()
@@ -16,7 +20,7 @@ ConsoleLogger::ConsoleLogger()
 
 ConsoleLogger::~ConsoleLogger()
 {
-  if (m_is_initializated)
+  if (m_is_initializated && dir_exists(m_console_filename))
   {
     TRACE_INFO("Closing (%s) terminal", m_console_filename.c_str());
 
@@ -45,7 +49,7 @@ void ConsoleLogger::init()
                 SHARE_FILE);
   }
 
-  system("gnome-terminal -e \"bash -c \\\"tty > " SHARE_FILE "; exec bash\\\"\"");
+  system("gnome-terminal -- bash -c \"tty > " SHARE_FILE "; exec bash\" 2> /dev/null");
   
   std::getline(file, m_console_filename);
   file.close();
@@ -63,4 +67,11 @@ inline void ConsoleLogger::clear() const
 {
   system((std::string("clear > ") + m_console_filename).c_str());
   return;
-} 
+}
+
+/* > Local Functions Definition ***********************************************/
+
+inline bool dir_exists (const std::string& name) {
+  struct stat buffer;   
+  return (stat (name.c_str(), &buffer) == 0); 
+}

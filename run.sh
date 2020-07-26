@@ -15,7 +15,7 @@ cd ${BUILD_DIR}
 echo ""
 echo "${BLACK_FONT} ${WHITE_BG}-----------------------------------------------------------${RESET}"
 echo "${BLACK_FONT} ${WHITE_BG}|                                                         |${RESET}"
-echo "${BLACK_FONT} ${WHITE_BG}|                        BUILD                            |${RESET}"
+echo "${BLACK_FONT} ${WHITE_BG}|                          BUILD                          |${RESET}"
 echo "${BLACK_FONT} ${WHITE_BG}|                                                         |${RESET}"
 echo "${BLACK_FONT} ${WHITE_BG}-----------------------------------------------------------${RESET}"
 echo ""

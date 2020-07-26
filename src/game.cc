@@ -58,7 +58,7 @@ SDL_Texture *b_pawn_tex;
 
 /* > Local Functions **********************************************************/
 
-static long get_ms(auto time)
+static long get_ms(Time::time_point time)
 {
   auto now_in_ms = time_point_cast<microseconds>(time);
   auto value = now_in_ms.time_since_epoch();

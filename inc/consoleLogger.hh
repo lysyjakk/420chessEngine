@@ -4,6 +4,7 @@
 #include <thread>
 #include <memory>
 #include <string>
+#include <sys/stat.h>
 #include "../inc/traceAndError.hh"
 #include "../inc/constants.hh"
 #include "../inc/errorCodes.hh"
