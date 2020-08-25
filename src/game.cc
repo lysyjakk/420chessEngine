@@ -78,7 +78,7 @@ void Game::run_game()
 {
   game_manager.start_new_game();
 
-  this -> game_loop();
+  game_loop();
 
   return;
 }
@@ -109,15 +109,36 @@ void Game::game_loop()
 
     if (last_fps_time >= ONE_SEC_IN_MS)
     {
+      ChessBoard temp_board = game_manager.get_chess_board();
+
       console_logger.clear();
       console_logger.print("FPS: %d", fps);
+
+      console_logger.print("");
+      console_logger.print("-----------------------------");
+      console_logger.print("");
+
+      for(int i = 0; i < 8; i++)
+      {
+        console_logger.print("%02d %02d %02d %02d %02d %02d %02d %02d",
+                            temp_board[i][0].second,
+                            temp_board[i][1].second,
+                            temp_board[i][2].second,
+                            temp_board[i][3].second,
+                            temp_board[i][4].second,
+                            temp_board[i][5].second,
+                            temp_board[i][6].second,
+                            temp_board[i][7].second);
+      }
+      console_logger.print("");
+      console_logger.print("-----------------------------");
 
       last_fps_time = 0;
       fps = 0;
     }
 
-    this -> handle_event();
-    this -> render();
+    handle_event();
+    render();
 
     this_thread::sleep_for(
       milliseconds(
@@ -131,7 +152,7 @@ void Game::game_loop()
     }
   }
 
-  this -> clean();
+  clean();
 
   return;
 }
@@ -212,7 +233,7 @@ void Game::render()
     SDL_RenderCopy(m_renderer, field_selection_tex, &m_src_rect, &m_dest_rect);
   }
 
-  this -> place_all_pieces();
+  place_all_pieces();
 
   SDL_RenderPresent(m_renderer);
 
@@ -224,15 +245,15 @@ void Game::set_img_size(uint32_t x_pos,
                         uint32_t width,
                         uint32_t height)
 {
-  this -> m_src_rect.w = width;
-  this -> m_src_rect.h = height;
-  this -> m_src_rect.x = 0;
-  this -> m_src_rect.y = 0;
+  m_src_rect.w = width;
+  m_src_rect.h = height;
+  m_src_rect.x = 0;
+  m_src_rect.y = 0;
 
-  this -> m_dest_rect.x = x_pos;
-  this -> m_dest_rect.y = y_pos;
-  this -> m_dest_rect.w = this -> m_src_rect.w;
-  this -> m_dest_rect.h = this -> m_src_rect.h;
+  m_dest_rect.x = x_pos;
+  m_dest_rect.y = y_pos;
+  m_dest_rect.w = m_src_rect.w;
+  m_dest_rect.h = m_src_rect.h;
 
   return;
 }
@@ -248,59 +269,59 @@ void Game::place_all_pieces()
       uint32_t x_pos = column;
       uint32_t y_pos = row;
 
-      this -> board_to_fixed_pos(x_pos, y_pos);
+      board_to_fixed_pos(x_pos, y_pos);
 
       switch (temp_board[row][column].second)
       {
       // White pieces
       case WHITE_PAWN:
-        this -> set_img_size(x_pos, y_pos, 99, 99);
+        set_img_size(x_pos, y_pos, 99, 99);
         SDL_RenderCopy(m_renderer, w_pawn_tex, &m_src_rect, &m_dest_rect);
       break;
       case WHITE_ROOK:
-        this -> set_img_size(x_pos, y_pos, 99, 99);
+        set_img_size(x_pos, y_pos, 99, 99);
         SDL_RenderCopy(m_renderer, w_rook_tex, &m_src_rect, &m_dest_rect);
       break;
       case WHITE_KNIGHT:
-        this -> set_img_size(x_pos, y_pos, 99, 99);
+        set_img_size(x_pos, y_pos, 99, 99);
         SDL_RenderCopy(m_renderer, w_knight_tex, &m_src_rect, &m_dest_rect);
       break;
       case WHITE_BISHOP:
-        this -> set_img_size(x_pos, y_pos, 99, 99);
+        set_img_size(x_pos, y_pos, 99, 99);
         SDL_RenderCopy(m_renderer, w_bishop_tex, &m_src_rect, &m_dest_rect);
       break;
       case WHITE_QUEEN:
-        this -> set_img_size(x_pos, y_pos, 99, 99);
+        set_img_size(x_pos, y_pos, 99, 99);
         SDL_RenderCopy(m_renderer, w_queen_tex, &m_src_rect, &m_dest_rect);
       break;
       case WHITE_KING:
-        this -> set_img_size(x_pos, y_pos, 99, 99);
+        set_img_size(x_pos, y_pos, 99, 99);
         SDL_RenderCopy(m_renderer, w_king_tex, &m_src_rect, &m_dest_rect);
       break;
 
     // Black pieces
       case BLACK_PAWN:
-        this -> set_img_size(x_pos, y_pos, 99, 99);
+        set_img_size(x_pos, y_pos, 99, 99);
         SDL_RenderCopy(m_renderer, b_pawn_tex, &m_src_rect, &m_dest_rect);
       break;
       case BLACK_ROOK:
-        this -> set_img_size(x_pos, y_pos, 99, 99);
+        set_img_size(x_pos, y_pos, 99, 99);
         SDL_RenderCopy(m_renderer, b_rook_tex, &m_src_rect, &m_dest_rect);
       break;
       case BLACK_KNIGHT:
-        this -> set_img_size(x_pos, y_pos, 99, 99);
+        set_img_size(x_pos, y_pos, 99, 99);
         SDL_RenderCopy(m_renderer, b_knight_tex, &m_src_rect, &m_dest_rect);
       break;
       case BLACK_BISHOP:
-        this -> set_img_size(x_pos, y_pos, 99, 99);
+        set_img_size(x_pos, y_pos, 99, 99);
         SDL_RenderCopy(m_renderer, b_bishop_tex, &m_src_rect, &m_dest_rect);
       break;
       case BLACK_QUEEN:
-        this -> set_img_size(x_pos, y_pos, 99, 99);
+        set_img_size(x_pos, y_pos, 99, 99);
         SDL_RenderCopy(m_renderer, b_queen_tex, &m_src_rect, &m_dest_rect);
       break;
       case BLACK_KING:
-        this -> set_img_size(x_pos, y_pos, 99, 99);
+        set_img_size(x_pos, y_pos, 99, 99);
         SDL_RenderCopy(m_renderer, b_king_tex, &m_src_rect, &m_dest_rect);
       break;
 
@@ -338,7 +359,7 @@ void Game::handle_event()
           selected_piece.x = (uint32_t)event.button.x;
           selected_piece.y = (uint32_t)event.button.y;
 
-          this -> fixed_to_board_pos(selected_piece.x, selected_piece.y);
+          fixed_to_board_pos(selected_piece.x, selected_piece.y);
         }
         else if (is_piece_grabbed == true)
         {

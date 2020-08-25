@@ -1,4 +1,6 @@
-#define PROJECT_ROOT                     "/home/adam/Pulpit/NeuralChess/"
+#define VERSION 1.0.0
+
+#define PROJECT_ROOT "/home/adam/Pulpit/NeuralChess/"
 
 //Textures paths
 #define CHESS_BOARD_TEX     PROJECT_ROOT "texture/GreenChessboard.png"

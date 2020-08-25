@@ -17,6 +17,7 @@ add_executable(
   ../src/textureManager.cc
   ../src/gameManager.cc
   ../src/pieces.cc
+  ../src/bitboard.cc
 )
 
 include_directories(${SDL2_INCLUDE_DIRS} ${SDL2_IMAGE_INCLUDE_DIRS})
