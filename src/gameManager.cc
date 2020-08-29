@@ -7,23 +7,108 @@
 #define PAWN_WEIGHT       1
 #define KING_WEIGHT      -1
 
+void GameManager::start_new_game2()
+{
+  int init_board [MAX_BOARD_COLUMNS][MAX_BOARD_ROWS] =
+    {
+      {  2,  3,  4,  6,  5,  4,  3,  2 },
+      {  1,  1,  1,  1,  1,  1,  1,  1 },
+      {  0,  0,  0,  0,  0,  0,  0,  0 },
+      {  0,  0,  0,  0,  0,  0,  0,  0 },
+      {  0,  0,  0,  0,  0,  0,  0,  0 },
+      {  0,  0,  0,  0,  0,  0,  0,  0 },
+      {  7,  7,  7,  7,  7,  7,  7,  7 },
+      {  8,  9, 10, 12, 11, 10,  9,  8 }
+    };
+
+  for (int row = 0; row < MAX_BOARD_ROWS; ++row)
+    {
+      for (int col = 0; col < MAX_BOARD_COLUMNS; ++col)
+      {
+        Bitboard b;
+
+        switch (init_board[row][col])
+        {
+        //> BLACK PIECES
+        case BLACK_ROOK:
+
+          b = Bitboard().board.set( std::size_t(row * 8 + col) );
+          m_board.black_rooks = m_board.black_rooks | b;
+        break;
+
+        case BLACK_KNIGHT:
+          b = Bitboard().board.set( std::size_t(row * 8 + col) );
+          m_board.black_knights |= b;
+        break;
+
+        case BLACK_BISHOP:
+          b = Bitboard().board.set( std::size_t(row * 8 + col) ); 
+          m_board.black_bishops |= b;
+        break;
+
+        case BLACK_QUEEN:
+          b = Bitboard().board.set( std::size_t(row * 8 + col) );
+          m_board.black_queens |= b;
+        break;
+
+        case BLACK_KING:
+          b = Bitboard().board.set( std::size_t(row * 8 + col) );
+          m_board.black_king |= b;
+        break;
+
+        case BLACK_PAWN:
+          b = Bitboard().board.set( std::size_t(row * 8 + col) );
+          m_board.black_pawns |= b;
+        break;
+
+        //> WHITE PIECES
+
+        case WHITE_ROOK:
+          b = Bitboard().board.set( std::size_t(row * 8 + col) );
+          m_board.white_rooks |= b;
+        break;
+
+        case WHITE_KNIGHT:
+          b = Bitboard().board.set( std::size_t(row * 8 + col) );
+          m_board.white_knights |= b;
+        break;
+
+        case WHITE_BISHOP:
+          b = Bitboard().board.set( std::size_t(row * 8 + col) );
+          m_board.white_bishops |= b;
+        break;
+
+        case WHITE_QUEEN:
+          b = Bitboard().board.set( std::size_t(row * 8 + col) );
+          m_board.white_queens |= b;
+        break;
+
+        case WHITE_KING:
+          b = Bitboard().board.set( std::size_t(row * 8 + col) );
+          m_board.white_king |= b;
+        break;
+
+        case WHITE_PAWN:
+          b = Bitboard().board.set( std::size_t(row * 8 + col) );
+          m_board.white_pawns |= b;
+        break;
+        //> NONE
+
+        case NONE:
+        break;
+
+        default:
+          break;
+      }
+    }
+  }
+
+  return;
+}
+
 void GameManager::start_new_game()
 {
-  TRACE_INFO("---------------------Init---------------------------");
-  Bitboard b(0x8000);
-  b.print();
-  TRACE_INFO("---------------------w----------------------------");
-  b.move_west();
-  b.print();
-  TRACE_INFO("---------------------e----------------------------");
-  b.move_east();
-  b.print();
-  TRACE_INFO("---------------------n----------------------------");
-  b.move_north();
-  b.print();
-  TRACE_INFO("---------------------s----------------------------");
-  b.move_south();
-  b.print();
+  this -> start_new_game2();
 
   int start_board_pos [MAX_BOARD_COLUMNS][MAX_BOARD_ROWS] = 
     {
