@@ -8,6 +8,9 @@
 #define OPTIMAL_TIME  1000000000 / TARGET_FPS
 #define ONE_SEC_IN_MS 1000000
 
+#define FLIP_X_AXIS(x) (7 - x)
+#define FLIP_Y_AXIS(y) (7 - y)
+
 /* > Typedefs *****************************************************************/
 
 typedef high_resolution_clock Time;
@@ -109,7 +112,7 @@ void Game::game_loop()
 
     if (last_fps_time >= ONE_SEC_IN_MS)
     {
-      ChessBoard temp_board = game_manager.get_chess_board();
+      BitBoardToGUI temp_board = game_manager.get_board();
 
       console_logger.clear();
       console_logger.print("FPS: %d", fps);
@@ -118,17 +121,17 @@ void Game::game_loop()
       console_logger.print("-----------------------------");
       console_logger.print("");
 
-      for(int i = 0; i < 8; i++)
+      for(int i = 0; i < 64; i+=8)
       {
         console_logger.print("%02d %02d %02d %02d %02d %02d %02d %02d",
-                            temp_board[i][0].second,
-                            temp_board[i][1].second,
-                            temp_board[i][2].second,
-                            temp_board[i][3].second,
-                            temp_board[i][4].second,
-                            temp_board[i][5].second,
-                            temp_board[i][6].second,
-                            temp_board[i][7].second);
+                            temp_board[i],
+                            temp_board[i+1],
+                            temp_board[i+2],
+                            temp_board[i+3],
+                            temp_board[i+4],
+                            temp_board[i+5],
+                            temp_board[i+6],
+                            temp_board[i+7]);
       }
       console_logger.print("");
       console_logger.print("-----------------------------");
@@ -260,7 +263,7 @@ void Game::set_img_size(uint32_t x_pos,
 
 void Game::place_all_pieces()
 {
-  ChessBoard temp_board = game_manager.get_chess_board();
+  BitBoardToGUI board = game_manager.get_board();
 
   for (uint8_t row = 0; row < MAX_BOARD_ROWS; ++row)
   {
@@ -271,7 +274,7 @@ void Game::place_all_pieces()
 
       board_to_fixed_pos(x_pos, y_pos);
 
-      switch (temp_board[row][column].second)
+      switch (board[row * 8 + column])
       {
       // White pieces
       case WHITE_PAWN:
@@ -332,7 +335,7 @@ void Game::place_all_pieces()
       default:
         FATAL_ERROR(ERROR_INVALID_VARIABLE,
           "Invalid variable (%i) in chess board array!",
-          temp_board[row][column].second);
+          board[row * 8 + column]);
         break;
       }
     }
@@ -367,9 +370,9 @@ void Game::handle_event()
 
           fixed_to_board_pos(field_selction_pos.x, field_selction_pos.y);
           game_manager.move_piece(selected_piece.x,
-                                  selected_piece.y,
+                                  FLIP_Y_AXIS(selected_piece.y),
                                   field_selction_pos.x,
-                                  field_selction_pos.y);
+                                  FLIP_Y_AXIS(field_selction_pos.y));
         }
       }
     break;

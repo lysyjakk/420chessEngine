@@ -3,23 +3,25 @@
 
 #include <array>
 #include <algorithm>
+#include <vector>
 #include "traceAndError.hh"
+#include "errorCodes.hh"
 #include "pieces.hh"
 #include "bitboard.hh"
 
 #define MAX_BOARD_COLUMNS 8
 #define MAX_BOARD_ROWS    8
 
-enum
+enum CoordDecoder
 {
-  H1, G1, F1, E1, D1, C1, B1, A1,
-  H2, G2, F2, E2, D2, C2, B2, A2,
-  H3, G3, F3, E3, D3, C3, B3, A3,
-  H4, G4, F4, E4, D4, C4, B4, A4,
-  H5, G5, F5, E5, D5, C5, B5, A5,
-  H6, G6, F6, E6, D6, C6, B6, A6,
-  H7, G7, F7, E7, D7, C7, B7, A7,
-  H8, G8, F8, E8, D8, C8, B8, A8
+  A1, B1, C1, D1, E1, F1, G1, H1,
+  A2, B2, C2, D2, E2, F2, G2, H2,
+  A3, B3, C3, D3, E3, F3, G3, H3,
+  A4, B4, C4, D4, E4, F4, G4, H4,
+  A5, B5, C5, D5, E5, F5, G5, H5,
+  A6, B6, C6, D6, E6, F6, G6, H6,
+  A7, B7, C7, D7, E7, F7, G7, H7,
+  A8, B8, C8, D8, E8, F8, G8, H8
 };
 
 enum TypesOfPieces
@@ -43,8 +45,19 @@ enum TypesOfPieces
   BLACK_KING
 };
 
-typedef std::array< std::array< std::pair< Pieces*, TypesOfPieces >,
-          MAX_BOARD_COLUMNS >, MAX_BOARD_ROWS > ChessBoard;
+typedef std::array< TypesOfPieces, 64 > BitBoardToGUI;
+
+typedef struct
+{
+  King   *king;
+  Queen  *queen;
+  Rook   *rook;
+  Knight *knight;
+  Bishop *bishop;
+  Pawn   *b_pawn;
+  Pawn   *w_pawn;
+} Moves;
+
 
 typedef struct
 {
@@ -63,30 +76,48 @@ typedef struct
   Bitboard black_bishops;
   Bitboard black_queens;
   Bitboard black_king;
-} chessBoard;
+} ChessBoard;
 
+template <typename S> Bitboard* get_begin(S *s)
+{
+    return (Bitboard*)s;
+}
 
+template <typename S> Bitboard* get_end(S *s)
+{
+    return (Bitboard*)((uint8_t*)s+sizeof(*s));
+}
 
 class GameManager
 {
 public:
-  GameManager() = default;
+  GameManager()  = default;
   ~GameManager() = default;
 
-  void       start_new_game();
-  void       start_new_game2();
-  void       move_piece(uint8_t x_src,
-                        uint8_t y_src,
-                        uint8_t x_dest,
-                        uint8_t y_dest);
-  ChessBoard get_chess_board() const;
+  void start_new_game();
+  void move_piece(uint8_t x_src,
+                  uint8_t y_src,
+                  uint8_t x_dest,
+                  uint8_t y_dest);
+
+  BitBoardToGUI get_board() const;
 
 private:
-  ChessBoard m_chess_board;
-  chessBoard m_board;
+  BitBoardToGUI m_pieces_pos;
+  ChessBoard    m_board;
+  Moves         m_pseudolegal_mv;
 
-  bool check_valid_of_move(Pieces *piece, uint8_t x_dest, uint8_t y_dest) const;
-  Moves get_all_valid_moves(Pieces *piece) const;
+  bool        __check_valid_of_move(ChessBoard    target_board,
+                                    TypesOfPieces piece)        const;
+  bool        __check_piece_move   (Bitboard      target_piece) const;
+
+
+  ChessBoard* __gen_target_board   (TypesOfPieces piece,
+                                    uint8_t       x_src,
+                                    uint8_t       y_src,
+                                    uint8_t       x_dest,
+                                    uint8_t       y_dest) const;
+
 };
 
 #endif // GAMEMANAGER_H_INCLUDED

@@ -1,162 +1,178 @@
 #ifndef PIECES_H_INCLUDED
 #define PIECES_H_INCLUDED
 
+/* > Defines ******************************************************************/
+
+#define MAX_BOARD_SQ 64
+
+/* > Includes *****************************************************************/
+
 #include <iostream>
 #include <vector>
 #include "traceAndError.hh"
 #include "bitboard.hh"
 
-typedef std::vector< std::pair< uint8_t, uint8_t > > Moves;
+/* > Structs definition *******************************************************/
 
 enum class Opponent
 {
   WHITE,
-  BLACK
+  BLACK,
+  BOTH
 };
+
+/* > Classes definition *******************************************************/
 
 class Pieces
 {
 public:
-  Pieces(uint8_t x_pos, uint8_t y_pos, uint8_t weight, Opponent opponent);
+  Pieces(uint8_t weight, Opponent opponent);
   ~Pieces() = default;
 
-  void  move(uint8_t x, uint8_t y);
+  Opponent get_opponent_side() const;
 
-  void  destroy() const;
-
-  std::vector< Moves > get_pseudo_legal_moves() const;
-  Opponent             get_opponent_side()      const;
-
+  virtual Bitboard get_moves(std::size_t sq, Bitboard occ = NULL) const = 0;
 
 protected:
   // basic information about piece
   Opponent m_opponent;
-  Bitboard m_all_moves[64];
+  Bitboard m_pseudo_mask[MAX_BOARD_SQ];
 
   uint8_t m_weight;
-  uint8_t m_x_pos;
-  uint8_t m_y_pos;
 
-  std::vector< Moves > m_pseudo_legal_moves;
-
-  virtual void update_pseudo_legal_moves() = 0;
-  virtual void __gen_piece_moves()         = 0;
+  virtual void __gen_pseudo_mask() = 0;
 };
+
+/* > --------------------------------------------------         >>        KING*/
 
 class King : public Pieces
 {
 public:
-  King(uint8_t x_pos, uint8_t y_pos, uint8_t weight, Opponent opponent) : 
-        Pieces(x_pos, y_pos, weight, opponent)
+  King(uint8_t weight, Opponent opponent) : 
+        Pieces(weight, opponent)
   {
-    __gen_piece_moves();
-    update_pseudo_legal_moves();
-    m_is_first_move = true;
+    __gen_pseudo_mask();
   };
 
   ~King() = default;
 
-private:
-  bool m_is_first_move;
+  virtual Bitboard get_moves(std::size_t sq, Bitboard occ = NULL) const;
 
-  virtual void update_pseudo_legal_moves();
-  virtual void __gen_piece_moves();
+private:
+  virtual void __gen_pseudo_mask();
 };
+
+/* > --------------------------------------------------         >>       QUEEN*/
 
 class Queen : public Pieces
 {
 public:
-  Queen(uint8_t x_pos, uint8_t y_pos, uint8_t weight, Opponent opponent) : 
-         Pieces(x_pos, y_pos, weight, opponent)
+  Queen(uint8_t weight, Opponent opponent) : 
+         Pieces(weight, opponent)
   {
-    __gen_piece_moves();
-    update_pseudo_legal_moves();
+    __gen_pseudo_mask();
+    __gen_blocker_mask();
   };
 
   ~Queen() = default;
 
+  virtual Bitboard get_moves(std::size_t sq, Bitboard occ = NULL) const;
+
 private:
-  virtual void update_pseudo_legal_moves();
-  virtual void __gen_piece_moves();
+  Bitboard m_blocker_mask[MAX_BOARD_SQ];
+
+          void __gen_blocker_mask();
+  virtual void __gen_pseudo_mask();
 };
+
+/* > --------------------------------------------------         >>        ROOK*/
 
 class Rook : public Pieces
 {
 public:
-  Rook(uint8_t x_pos, uint8_t y_pos, uint8_t weight, Opponent opponent) : 
-        Pieces(x_pos, y_pos, weight, opponent)
+  Rook(uint8_t weight, Opponent opponent) : 
+        Pieces(weight, opponent)
   {
-    __gen_piece_moves();
-    update_pseudo_legal_moves();
-    m_is_first_move = true;
+    __gen_pseudo_mask();
+    __gen_blocker_mask();
   };
 
   ~Rook() = default;
 
-private:
-  bool m_is_first_move;
+  virtual Bitboard get_moves(std::size_t sq, Bitboard occ = NULL) const;
 
-  virtual void update_pseudo_legal_moves();
-  virtual void __gen_piece_moves();
+private:
+  Bitboard m_blocker_mask[MAX_BOARD_SQ];
+  Bitboard m_attack_mask[MAX_BOARD_SQ][4096];
+
+          void __gen_blocker_mask ();
+          void __init_attacks_mask();
+  virtual void __gen_pseudo_mask  ();
 };
 
+/* > --------------------------------------------------         >>      BISHOP*/
 class Bishop : public Pieces
 {
 public:
-  Bishop(uint8_t x_pos, uint8_t y_pos, uint8_t weight, Opponent opponent) : 
-          Pieces(x_pos, y_pos, weight, opponent)
+  Bishop(uint8_t weight, Opponent opponent) : 
+          Pieces(weight, opponent)
   {
-    __gen_piece_moves();
-    update_pseudo_legal_moves();
+    __gen_pseudo_mask();
+    __gen_blocker_mask();
+    __gen_attacks_mask();
   };
 
   ~Bishop() = default;
+  uint64_t find_magic_number(int square, int relevant_bits);
+  virtual Bitboard get_moves(std::size_t sq, Bitboard occ = NULL) const;
 
 private:
-  virtual void update_pseudo_legal_moves();
-  virtual void __gen_piece_moves();
+  Bitboard m_blocker_mask[MAX_BOARD_SQ];
+  Bitboard m_attack_mask[MAX_BOARD_SQ][512];
+
+          void __gen_blocker_mask();
+          void __gen_attacks_mask();
+  virtual void __gen_pseudo_mask();
+
+  Bitboard __moves_with_occ_at(uint8_t sq, Bitboard occ);
 };
+
+/* > --------------------------------------------------         >>      KNIGHT*/
 
 class Knight : public Pieces
 {
 public:
-  Knight(uint8_t x_pos, uint8_t y_pos, uint8_t weight, Opponent opponent) : 
-          Pieces(x_pos, y_pos, weight, opponent)
+  Knight(uint8_t weight, Opponent opponent) : 
+          Pieces(weight, opponent)
   {
-    __gen_piece_moves();
-    update_pseudo_legal_moves();
+    __gen_pseudo_mask();
   };
 
   ~Knight() = default;
 
+  virtual Bitboard get_moves(std::size_t sq, Bitboard occ = NULL) const;
+
 private:
-  virtual void update_pseudo_legal_moves();
-  virtual void __gen_piece_moves();
+  virtual void __gen_pseudo_mask();
 };
+
+/* > --------------------------------------------------         >>        PAWN*/
 
 class Pawn : public Pieces
 {
 public:
-  Pawn(uint8_t x_pos, uint8_t y_pos, uint8_t weight, Opponent opponent) : 
-        Pieces(x_pos, y_pos, weight, opponent)
+  Pawn(uint8_t weight, Opponent opponent) : 
+        Pieces(weight, opponent)
   {
-    int8_t site_modifier = m_opponent == Opponent::BLACK ? 1 : -1;
-    m_is_first_move = true;
-
-    update_pseudo_legal_moves();
-
-    m_pseudo_legal_moves.back().push_back(
-      std::make_pair(m_x_pos, m_y_pos + 2 * site_modifier));
-    __gen_piece_moves();
+    __gen_pseudo_mask();
   };
 
   ~Pawn() = default;
 
-private:
-  bool m_is_first_move;
+  virtual Bitboard get_moves(std::size_t sq, Bitboard occ = NULL) const;
 
-  virtual void update_pseudo_legal_moves();
-  virtual void __gen_piece_moves();
+private:
+  virtual void __gen_pseudo_mask();
 };
 
 

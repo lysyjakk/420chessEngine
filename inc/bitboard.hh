@@ -4,6 +4,7 @@
 #include <iostream>
 #include <bitset>
 #include <map>
+#include <vector>
 #include "traceAndError.hh"
 
 typedef std::bitset<64> bit_sqs;
@@ -42,27 +43,26 @@ public:
 
   ~Bitboard() = default;
 
-  Bitboard move_north();
-  Bitboard move_east();
-  Bitboard move_south();
-  Bitboard move_west();
-  Bitboard move_no_ea();
-  Bitboard move_so_ea();
-  Bitboard move_no_we();
-  Bitboard move_so_we();
+  Bitboard move_north() const;
+  Bitboard move_east () const;
+  Bitboard move_south() const;
+  Bitboard move_west () const;
+  Bitboard move_no_ea() const;
+  Bitboard move_so_ea() const;
+  Bitboard move_no_we() const;
+  Bitboard move_so_we() const;
 
-  void print()
-  {
-    for (int i = 8; i > 0; i--)
-    {
-      std::bitset<8> temp(board.to_ulong() >> 8 * (i-1));
-      std::cout << temp << std::endl;
-    }
-    std::cout << std::endl;
-  }
+  Bitboard set_bit_at(std::size_t index, bool val = true) const;
+  Bitboard pop_bit_at(std::size_t index)                  const;
+
+  std::vector<std::size_t> scan_for_bit_index() const;
+
+  void print();
 
   bit_sqs board;
 };
+
+/* > Bit shifts operators *****************************************************/
 
 inline Bitboard operator>>(Bitboard b, uint8_t amount)
 {
@@ -74,6 +74,14 @@ inline Bitboard operator<<(Bitboard b, uint8_t amount)
   return Bitboard(b.board.to_ullong() << amount);
 }
 
+inline Bitboard operator>>=(Bitboard &b, uint8_t amount)
+{
+  b.board = b.board >> amount;
+  return b;
+}
+
+/* > Bit logical operators ****************************************************/
+
 inline Bitboard operator&(Bitboard a, Bitboard b)
 {
   return Bitboard(a.board & b.board);
@@ -82,6 +90,17 @@ inline Bitboard operator&(Bitboard a, Bitboard b)
 inline Bitboard operator&(Bitboard a, bit_sqs b)
 {
   return Bitboard(a.board & b);
+}
+
+inline Bitboard operator&(Bitboard a, uint64_t amount)
+{
+  return Bitboard(a.board.to_ullong() & amount);
+}
+
+inline Bitboard operator&=(Bitboard &a, Bitboard b)
+{
+  a = a & b;
+  return a;
 }
 
 inline Bitboard operator|(Bitboard b, uint64_t amount)
@@ -112,13 +131,41 @@ inline bool operator==(Bitboard a,uint64_t b)
 
 inline bool operator!=(Bitboard a,Bitboard b)
 {
-  return a.board == b.board;
+  return a.board != b.board;
 }
 
 
 inline bool operator!=(Bitboard a,uint64_t b)
 {
   return a.board.to_ullong() != b;
+}
+
+/* > Bit arithmetic operators *************************************************/
+
+inline Bitboard operator-(Bitboard a, uint64_t amount)
+{
+  return Bitboard( (a.board.to_ullong() - amount) );return Bitboard( (a.board.to_ullong() - amount) );
+}
+
+inline Bitboard operator-(Bitboard a)
+{
+  return Bitboard( -(a.board.to_ullong()) );
+}
+
+inline Bitboard operator*(Bitboard a, uint64_t amount)
+{
+  return Bitboard( (a.board.to_ullong() * amount) );
+}
+
+inline Bitboard operator*(Bitboard a, Bitboard b)
+{
+  return Bitboard( (a.board.to_ullong() * b.board.to_ullong()) );
+}
+
+inline Bitboard operator*=(Bitboard &a, uint64_t amount)
+{
+  a.board = a.board.to_ullong() * amount;
+  return a;
 }
 
 #endif // BITBOARD_H_INCLUDED
