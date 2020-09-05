@@ -28,70 +28,70 @@ const uint8_t rook_relevant_bits[64] = {
 };
 
 uint64_t rook_magic_numbers[64] = {
-    0x8a80104000800020ULL,
-    0x140002000100040ULL,
-    0x2801880a0017001ULL,
-    0x100081001000420ULL,
-    0x200020010080420ULL,
-    0x3001c0002010008ULL,
-    0x8480008002000100ULL,
-    0x2080088004402900ULL,
-    0x800098204000ULL,
-    0x2024401000200040ULL,
-    0x100802000801000ULL,
-    0x120800800801000ULL,
-    0x208808088000400ULL,
-    0x2802200800400ULL,
-    0x2200800100020080ULL,
-    0x801000060821100ULL,
-    0x80044006422000ULL,
-    0x100808020004000ULL,
-    0x12108a0010204200ULL,
-    0x140848010000802ULL,
-    0x481828014002800ULL,
-    0x8094004002004100ULL,
-    0x4010040010010802ULL,
-    0x20008806104ULL,
-    0x100400080208000ULL,
-    0x2040002120081000ULL,
-    0x21200680100081ULL,
-    0x20100080080080ULL,
-    0x2000a00200410ULL,
-    0x20080800400ULL,
-    0x80088400100102ULL,
-    0x80004600042881ULL,
-    0x4040008040800020ULL,
-    0x440003000200801ULL,
-    0x4200011004500ULL,
-    0x188020010100100ULL,
-    0x14800401802800ULL,
-    0x2080040080800200ULL,
-    0x124080204001001ULL,
-    0x200046502000484ULL,
-    0x480400080088020ULL,
-    0x1000422010034000ULL,
-    0x30200100110040ULL,
-    0x100021010009ULL,
-    0x2002080100110004ULL,
-    0x202008004008002ULL,
-    0x20020004010100ULL,
-    0x2048440040820001ULL,
-    0x101002200408200ULL,
-    0x40802000401080ULL,
-    0x4008142004410100ULL,
-    0x2060820c0120200ULL,
-    0x1001004080100ULL,
-    0x20c020080040080ULL,
-    0x2935610830022400ULL,
-    0x44440041009200ULL,
-    0x280001040802101ULL,
-    0x2100190040002085ULL,
-    0x80c0084100102001ULL,
-    0x4024081001000421ULL,
-    0x20030a0244872ULL,
-    0x12001008414402ULL,
-    0x2006104900a0804ULL,
-    0x1004081002402ULL
+  0x8a80104000800020ULL,
+  0x140002000100040ULL,
+  0x2801880a0017001ULL,
+  0x100081001000420ULL,
+  0x200020010080420ULL,
+  0x3001c0002010008ULL,
+  0x8480008002000100ULL,
+  0x2080088004402900ULL,
+  0x800098204000ULL,
+  0x2024401000200040ULL,
+  0x100802000801000ULL,
+  0x120800800801000ULL,
+  0x208808088000400ULL,
+  0x2802200800400ULL,
+  0x2200800100020080ULL,
+  0x801000060821100ULL,
+  0x80044006422000ULL,
+  0x100808020004000ULL,
+  0x12108a0010204200ULL,
+  0x140848010000802ULL,
+  0x481828014002800ULL,
+  0x8094004002004100ULL,
+  0x4010040010010802ULL,
+  0x20008806104ULL,
+  0x100400080208000ULL,
+  0x2040002120081000ULL,
+  0x21200680100081ULL,
+  0x20100080080080ULL,
+  0x2000a00200410ULL,
+  0x20080800400ULL,
+  0x80088400100102ULL,
+  0x80004600042881ULL,
+  0x4040008040800020ULL,
+  0x440003000200801ULL,
+  0x4200011004500ULL,
+  0x188020010100100ULL,
+  0x14800401802800ULL,
+  0x2080040080800200ULL,
+  0x124080204001001ULL,
+  0x200046502000484ULL,
+  0x480400080088020ULL,
+  0x1000422010034000ULL,
+  0x30200100110040ULL,
+  0x100021010009ULL,
+  0x2002080100110004ULL,
+  0x202008004008002ULL,
+  0x20020004010100ULL,
+  0x2048440040820001ULL,
+  0x101002200408200ULL,
+  0x40802000401080ULL,
+  0x4008142004410100ULL,
+  0x2060820c0120200ULL,
+  0x1001004080100ULL,
+  0x20c020080040080ULL,
+  0x2935610830022400ULL,
+  0x44440041009200ULL,
+  0x280001040802101ULL,
+  0x2100190040002085ULL,
+  0x80c0084100102001ULL,
+  0x4024081001000421ULL,
+  0x20030a0244872ULL,
+  0x12001008414402ULL,
+  0x2006104900a0804ULL,
+  0x1004081002402ULL
 };
 
 uint64_t bishop_magic_numbers[64] = {
@@ -246,7 +246,7 @@ Bitboard generate_magic_number()
 }
 
 
-uint64_t Bishop::find_magic_number(int square, int relevant_bits)
+uint64_t Rook::find_magic_number(int square, int relevant_bits)
 {
     // init occupancies
     Bitboard occupancies[4096];
@@ -319,9 +319,6 @@ uint64_t Bishop::find_magic_number(int square, int relevant_bits)
 //##############################################################################
 
 
-
-
-
 /* > Methods definitions ******************************************************/
 
 Pieces::Pieces(uint8_t weight,
@@ -336,26 +333,220 @@ Opponent Pieces::get_opponent_side() const
   return m_opponent;
 }
 
-/* > --------------------------------------------------         >>        PWAN*/
+/* > --------------------------------------------------         >>        KING*/
 
-Bitboard Pawn::get_moves(std::size_t sq, Bitboard occ) const
+Bitboard King::get_moves(std::size_t sq, Bitboard occ) const
 {
   return Bitboard();
 }
 
-void Pawn::__gen_pseudo_mask()
+void King::__gen_pseudo_mask()
 {
-  Bitboard (Bitboard::*func)(void) const;
-  func = m_opponent == Opponent::BLACK ?
-          &Bitboard::move_south : &Bitboard::move_north;
-
   for (int sq = 0; sq < MAX_BOARD_SQ; ++sq)
   {
     Bitboard b = Bitboard().board.set(sq);
-    m_pseudo_mask[sq] |= (b.*func)();
+    b = b.move_east() | b.move_north() | b.move_south() | b.move_west() |
+          b.move_no_ea() | b.move_no_we() | b.move_so_ea() | b.move_so_we();
+
+    m_pseudo_mask[sq] |= b;
   }
 
   return;
+}
+
+/* > --------------------------------------------------         >>       QUEEN*/
+
+Bitboard Queen::get_moves(std::size_t sq, Bitboard occ) const
+{
+  Bitboard b = Bitboard(0x0);
+  b |= m_bishop_moves -> get_moves(sq, occ);
+  b |= m_rook_moves   -> get_moves(sq, occ);
+
+  return b;
+}
+
+void Queen::__gen_pseudo_mask()
+{
+  
+  return;
+}
+
+/* > --------------------------------------------------         >>        ROOK*/
+
+Bitboard Rook::get_moves(std::size_t sq, Bitboard occ) const
+{
+  occ &= m_blocker_mask[sq];
+  occ *= rook_magic_numbers[sq];
+  occ >>= 64 - rook_relevant_bits[sq];
+
+  return m_attack_mask[sq][occ.board.to_ullong()];
+}
+
+void Rook::__gen_attacks_mask()
+{
+  for (int sq = 0; sq < MAX_BOARD_SQ; ++sq)
+  {
+    uint8_t  relevant_bits_count = m_blocker_mask[sq].board.count();
+    uint32_t occupancy_indicies  = (1 << relevant_bits_count);
+
+    for (int index = 0; index < occupancy_indicies; ++index)
+    {
+      Bitboard occ = set_occupancy(index, relevant_bits_count, m_blocker_mask[sq]);
+
+      int magic_index = ((occ * rook_magic_numbers[sq])
+                          >> (64 - rook_relevant_bits[sq])).board.to_ulong();
+      m_attack_mask[sq][magic_index] = __moves_with_occ_at(sq, occ);
+    }
+  }
+  return;
+}
+
+void Rook::__gen_blocker_mask()
+{
+  for (int sq = 0; sq < MAX_BOARD_SQ; ++sq)
+  {
+    Bitboard moves;
+
+    Bitboard b = Bitboard().board.set(sq);
+    Bitboard n = b.move_north(), w = b.move_west(),
+             s = b.move_south(), e = b.move_east();
+    Bitboard last_bit;
+
+    while(n != 0x0)
+    {
+      moves |= n;
+      last_bit.board = n.board;
+      n = n.move_north();
+    }
+    moves &= ~last_bit;
+
+    while(w != 0x0)
+    {
+      moves |= w;
+      last_bit.board = w.board;
+      w = w.move_west();
+    }
+    moves &= ~last_bit;
+
+    while(s != 0x0)
+    {
+      moves |= s;
+      last_bit.board = s.board;
+      s = s.move_south();
+    }
+    moves &= ~last_bit;
+
+    while(e != 0x0)
+    {
+      moves |= e;
+      last_bit.board = e.board;
+      e = e.move_east();
+    }
+    moves &= ~last_bit;
+
+    m_blocker_mask[sq] |= moves;
+  }
+
+  return;
+}
+
+void Rook::__gen_pseudo_mask()
+{
+  for (int sq = 0; sq < MAX_BOARD_SQ; ++sq)
+  {
+    Bitboard moves;
+
+    Bitboard b = Bitboard().board.set(sq);
+    Bitboard n = b.move_north(), w = b.move_west(),
+             s = b.move_south(), e = b.move_east();
+
+    while(n != 0x0)
+    {
+      moves |= n;
+      n = n.move_north();
+    }
+
+    while(w != 0x0)
+    {
+      moves |= w;
+      w = w.move_west();
+    }
+
+    while(s != 0x0)
+    {
+      moves |= s;
+      s = s.move_south();
+    }
+
+    while(e != 0x0)
+    {
+      moves |= e;
+      e = e.move_east();
+    }
+
+    m_pseudo_mask[sq] |= moves;
+  }
+
+  return;
+}
+
+Bitboard Rook::__moves_with_occ_at(uint8_t sq, Bitboard occ) const
+{
+  Bitboard moves;
+
+  Bitboard b = Bitboard().board.set(sq);
+  Bitboard n = b.move_north(), w = b.move_west(),
+           s = b.move_south(), e = b.move_east();
+
+  while(n != 0x0)
+  {
+    moves |= n;
+
+    if ((n & occ) != 0x0)
+    {
+      break;
+    }
+
+    n = n.move_north();
+  }
+
+  while(w != 0x0)
+  {
+    moves |= w;
+
+    if ((w & occ) != 0x0)
+    {
+      break;
+    }
+
+    w = w.move_west();
+  }
+
+  while(e != 0x0)
+  {
+    moves |= e;
+
+    if ((e & occ) != 0x0)
+    {
+      break;
+    }
+
+    e = e.move_east();
+  }
+
+  while(s != 0x0)
+  {
+    moves |= s;
+
+    if ((s & occ) != 0x0)
+    {
+      break;
+    }
+
+    s = s.move_south();
+  }
+
+  return moves;
 }
 
 /* > --------------------------------------------------         >>      BISHOP*/
@@ -383,12 +574,12 @@ void Bishop::__gen_attacks_mask()
       int magic_index = ((occ * bishop_magic_numbers[sq])
                           >> (64 - bishop_relevant_bits[sq])).board.to_ulong();
       m_attack_mask[sq][magic_index] = __moves_with_occ_at(sq, occ);
-      std::cout << "DUPA: " << magic_index << std::endl;
     }
   }
+  return;
 }
 
-Bitboard Bishop::__moves_with_occ_at(uint8_t sq, Bitboard occ)
+Bitboard Bishop::__moves_with_occ_at(uint8_t sq, Bitboard occ) const
 {
   Bitboard moves;
 
@@ -520,154 +711,23 @@ void Knight::__gen_pseudo_mask()
   return;
 }
 
-/* > --------------------------------------------------         >>       QUEEN*/
+/* > --------------------------------------------------         >>        PWAN*/
 
-Bitboard Queen::get_moves(std::size_t sq, Bitboard occ) const
+Bitboard Pawn::get_moves(std::size_t sq, Bitboard occ) const
 {
   return Bitboard();
 }
 
-void Queen::__gen_blocker_mask()
+void Pawn::__gen_pseudo_mask()
 {
-  generate_blocker_mask(m_pseudo_mask, m_blocker_mask);
-  return;
-}
+  Bitboard (Bitboard::*func)(void) const;
+  func = m_opponent == Opponent::BLACK ?
+          &Bitboard::move_south : &Bitboard::move_north;
 
-void Queen::__gen_pseudo_mask()
-{
-    for (int sq = 0; sq < MAX_BOARD_SQ; ++sq)
-  {
-    Bitboard moves;
-
-    Bitboard b = Bitboard().board.set(sq);
-    Bitboard  n = b.move_north(),  w = b.move_west(),
-              s = b.move_south(),  e = b.move_east(),
-             ne = b.move_no_ea(), nw = b.move_no_we(),
-             se = b.move_so_ea(), sw = b.move_so_we();
-
-    while(n != 0x0)
-    {
-      moves |= n;
-      n = n.move_north();
-    }
-
-    while(w != 0x0)
-    {
-      moves |= w;
-      w = w.move_west();
-    }
-
-    while(s != 0x0)
-    {
-      moves |= s;
-      s = s.move_south();
-    }
-
-    while(e != 0x0)
-    {
-      moves |= e;
-      e = e.move_east();
-    }
-
-    while(ne != 0x0)
-    {
-      moves |= ne;
-      ne = ne.move_no_ea();
-    }
-
-    while(nw != 0x0)
-    {
-      moves |= nw;
-      nw = nw.move_no_we();
-    }
-
-    while(se != 0x0)
-    {
-      moves |= se;
-      se = se.move_so_ea();
-    }
-
-    while(sw != 0x0)
-    {
-      moves |= sw;
-      sw = sw.move_so_we();
-    }
-
-    m_pseudo_mask[sq] |= moves;
-  }
-
-  return;
-}
-
-/* > --------------------------------------------------         >>        ROOK*/
-
-Bitboard Rook::get_moves(std::size_t sq, Bitboard occ) const
-{
-  return Bitboard();
-}
-
-void Rook::__gen_blocker_mask()
-{
-  generate_blocker_mask(m_pseudo_mask, m_blocker_mask);
-  return;
-}
-
-void Rook::__gen_pseudo_mask()
-{
-  for (int sq = 0; sq < MAX_BOARD_SQ; ++sq)
-  {
-    Bitboard moves;
-
-    Bitboard b = Bitboard().board.set(sq);
-    Bitboard n = b.move_north(), w = b.move_west(),
-             s = b.move_south(), e = b.move_east();
-
-    while(n != 0x0)
-    {
-      moves |= n;
-      n = n.move_north();
-    }
-
-    while(w != 0x0)
-    {
-      moves |= w;
-      w = w.move_west();
-    }
-
-    while(s != 0x0)
-    {
-      moves |= s;
-      s = s.move_south();
-    }
-
-    while(e != 0x0)
-    {
-      moves |= e;
-      e = e.move_east();
-    }
-
-    m_pseudo_mask[sq] |= moves;
-  }
-
-  return;
-}
-
-/* > --------------------------------------------------         >>        KING*/
-
-Bitboard King::get_moves(std::size_t sq, Bitboard occ) const
-{
-  return Bitboard();
-}
-
-void King::__gen_pseudo_mask()
-{
   for (int sq = 0; sq < MAX_BOARD_SQ; ++sq)
   {
     Bitboard b = Bitboard().board.set(sq);
-    b = b.move_east() | b.move_north() | b.move_south() | b.move_west() |
-          b.move_no_ea() | b.move_no_we() | b.move_so_ea() | b.move_so_we();
-
-    m_pseudo_mask[sq] |= b;
+    m_pseudo_mask[sq] |= (b.*func)();
   }
 
   return;

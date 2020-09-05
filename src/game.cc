@@ -121,7 +121,7 @@ void Game::game_loop()
       console_logger.print("-----------------------------");
       console_logger.print("");
 
-      for(int i = 0; i < 64; i+=8)
+      for(int i = 56; i >= 0; i-=8)
       {
         console_logger.print("%02d %02d %02d %02d %02d %02d %02d %02d",
                             temp_board[i],
@@ -274,7 +274,7 @@ void Game::place_all_pieces()
 
       board_to_fixed_pos(x_pos, y_pos);
 
-      switch (board[row * 8 + column])
+      switch (board[63 - (row * 8 + column)])
       {
       // White pieces
       case WHITE_PAWN:

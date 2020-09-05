@@ -62,29 +62,6 @@ private:
   virtual void __gen_pseudo_mask();
 };
 
-/* > --------------------------------------------------         >>       QUEEN*/
-
-class Queen : public Pieces
-{
-public:
-  Queen(uint8_t weight, Opponent opponent) : 
-         Pieces(weight, opponent)
-  {
-    __gen_pseudo_mask();
-    __gen_blocker_mask();
-  };
-
-  ~Queen() = default;
-
-  virtual Bitboard get_moves(std::size_t sq, Bitboard occ = NULL) const;
-
-private:
-  Bitboard m_blocker_mask[MAX_BOARD_SQ];
-
-          void __gen_blocker_mask();
-  virtual void __gen_pseudo_mask();
-};
-
 /* > --------------------------------------------------         >>        ROOK*/
 
 class Rook : public Pieces
@@ -95,19 +72,22 @@ public:
   {
     __gen_pseudo_mask();
     __gen_blocker_mask();
+    __gen_attacks_mask();
   };
 
   ~Rook() = default;
-
+  uint64_t find_magic_number(int square, int relevant_bits);
   virtual Bitboard get_moves(std::size_t sq, Bitboard occ = NULL) const;
 
 private:
   Bitboard m_blocker_mask[MAX_BOARD_SQ];
   Bitboard m_attack_mask[MAX_BOARD_SQ][4096];
 
-          void __gen_blocker_mask ();
-          void __init_attacks_mask();
-  virtual void __gen_pseudo_mask  ();
+          void __gen_blocker_mask();
+          void __gen_attacks_mask();
+  virtual void __gen_pseudo_mask();
+
+  Bitboard __moves_with_occ_at(uint8_t sq, Bitboard occ) const;
 };
 
 /* > --------------------------------------------------         >>      BISHOP*/
@@ -123,7 +103,7 @@ public:
   };
 
   ~Bishop() = default;
-  uint64_t find_magic_number(int square, int relevant_bits);
+
   virtual Bitboard get_moves(std::size_t sq, Bitboard occ = NULL) const;
 
 private:
@@ -134,7 +114,7 @@ private:
           void __gen_attacks_mask();
   virtual void __gen_pseudo_mask();
 
-  Bitboard __moves_with_occ_at(uint8_t sq, Bitboard occ);
+  Bitboard __moves_with_occ_at(uint8_t sq, Bitboard occ) const;
 };
 
 /* > --------------------------------------------------         >>      KNIGHT*/
@@ -175,5 +155,26 @@ private:
   virtual void __gen_pseudo_mask();
 };
 
+/* > --------------------------------------------------         >>       QUEEN*/
+
+class Queen : public Pieces
+{
+public:
+  Queen(uint8_t weight, Opponent opponent) : 
+         Pieces(weight, opponent)
+  {
+    m_bishop_moves = new Bishop(weight, opponent);
+    m_rook_moves   = new Rook(weight, opponent);
+  };
+
+  ~Queen() = default;
+
+  virtual Bitboard get_moves(std::size_t sq, Bitboard occ = NULL) const;
+
+private:
+  Bishop *m_bishop_moves;
+  Rook   *m_rook_moves;
+  virtual void __gen_pseudo_mask();
+};
 
 #endif // PIECES_H_INCLUDED

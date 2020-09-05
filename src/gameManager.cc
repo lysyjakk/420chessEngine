@@ -35,77 +35,53 @@ void GameManager::start_new_game()
         {
         //> BLACK PIECES
         case BLACK_ROOK:
-          b = Bitboard().set_bit_at( std::size_t( COORD_TO_BIT_POS(row, col)) );
-          m_board.black_rooks |= b;
-          m_pieces_pos[63 - (row * 8 + col)] = BLACK_ROOK;
+          m_pieces_pos[(row * 8 + col)] = BLACK_ROOK;
         break;
 
         case BLACK_KNIGHT:
-          b = Bitboard().set_bit_at( std::size_t( COORD_TO_BIT_POS(row, col)) );
-          m_board.black_knights |= b;
-          m_pieces_pos[63 - (row * 8 + col)] = BLACK_KNIGHT;
+          m_pieces_pos[(row * 8 + col)] = BLACK_KNIGHT;
         break;
 
         case BLACK_BISHOP:
-          b = Bitboard().set_bit_at( std::size_t( COORD_TO_BIT_POS(row, col)) ); 
-          m_board.black_bishops |= b;
-          m_pieces_pos[63 - (row * 8 + col)] = BLACK_BISHOP;
+          m_pieces_pos[(row * 8 + col)] = BLACK_BISHOP;
         break;
 
         case BLACK_QUEEN:
-          b = Bitboard().set_bit_at( std::size_t( COORD_TO_BIT_POS(row, col)) );
-          m_board.black_queens |= b;
-          m_pieces_pos[63 - (row * 8 + col)] = BLACK_QUEEN;
+          m_pieces_pos[(row * 8 + col)] = BLACK_QUEEN;
         break;
 
         case BLACK_KING:
-          b = Bitboard().set_bit_at( std::size_t( COORD_TO_BIT_POS(row, col)) );
-          m_board.black_king |= b;
-          m_pieces_pos[63 - (row * 8 + col)] = BLACK_KING;
+          m_pieces_pos[(row * 8 + col)] = BLACK_KING;
         break;
 
         case BLACK_PAWN:
-          b = Bitboard().set_bit_at( std::size_t( COORD_TO_BIT_POS(row, col)) );
-          m_board.black_pawns |= b;
-          m_pieces_pos[63 - (row * 8 + col)] = BLACK_PAWN;
+          m_pieces_pos[(row * 8 + col)] = BLACK_PAWN;
         break;
 
         //> WHITE PIECES
 
         case WHITE_ROOK:
-          b = Bitboard().set_bit_at( std::size_t( COORD_TO_BIT_POS(row, col)) );
-          m_board.white_rooks |= b;
-          m_pieces_pos[63 - (row * 8 + col)] = WHITE_ROOK;
+          m_pieces_pos[(row * 8 + col)] = WHITE_ROOK;
         break;
 
         case WHITE_KNIGHT:
-          b = Bitboard().set_bit_at( std::size_t( COORD_TO_BIT_POS(row, col)) );
-          m_board.white_knights |= b;
-          m_pieces_pos[63 - (row * 8 + col)] = WHITE_KNIGHT;
+          m_pieces_pos[(row * 8 + col)] = WHITE_KNIGHT;
         break;
 
         case WHITE_BISHOP:
-          b = Bitboard().set_bit_at( std::size_t( COORD_TO_BIT_POS(row, col)) );
-          m_board.white_bishops |= b;
-          m_pieces_pos[63 - (row * 8 + col)] = WHITE_BISHOP;
+          m_pieces_pos[(row * 8 + col)] = WHITE_BISHOP;
         break;
 
         case WHITE_QUEEN:
-          b = Bitboard().set_bit_at( std::size_t( COORD_TO_BIT_POS(row, col)) );
-          m_board.white_queens |= b;
-          m_pieces_pos[63 - (row * 8 + col)] = WHITE_QUEEN;
+          m_pieces_pos[(row * 8 + col)] = WHITE_QUEEN;
         break;
 
         case WHITE_KING:
-          b = Bitboard().set_bit_at( std::size_t( COORD_TO_BIT_POS(row, col)) );
-          m_board.white_king |= b;
-          m_pieces_pos[63 - (row * 8 + col)] = WHITE_KING;
+          m_pieces_pos[(row * 8 + col)] = WHITE_KING;
         break;
 
         case WHITE_PAWN:
-          b = Bitboard().set_bit_at( std::size_t( COORD_TO_BIT_POS(row, col)) );
-          m_board.white_pawns |= b;
-          m_pieces_pos[63 - (row * 8 + col)] = WHITE_PAWN;
+          m_pieces_pos[(row * 8 + col)] = WHITE_PAWN;
         break;
         //> NONE
 
@@ -134,7 +110,7 @@ void GameManager::start_new_game()
   std::cout << std::endl;
   b.print();
   std::cout << std::endl;
-  m_pseudolegal_mv.bishop -> get_moves(20, b).print();
+  m_pseudolegal_mv.queen -> get_moves(28, b).print();
   std::cout << std::endl;
 
   return;

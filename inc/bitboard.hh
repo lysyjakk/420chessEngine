@@ -119,6 +119,11 @@ inline Bitboard operator|=(Bitboard &a, Bitboard b)
   return a;
 }
 
+inline Bitboard operator~(Bitboard a)
+{
+  return Bitboard(~a.board);
+}
+
 inline bool operator==(Bitboard a,Bitboard b)
 {
   return a.board == b.board;
@@ -144,7 +149,7 @@ inline bool operator!=(Bitboard a,uint64_t b)
 
 inline Bitboard operator-(Bitboard a, uint64_t amount)
 {
-  return Bitboard( (a.board.to_ullong() - amount) );return Bitboard( (a.board.to_ullong() - amount) );
+  return Bitboard( (a.board.to_ullong() - amount) );
 }
 
 inline Bitboard operator-(Bitboard a)
