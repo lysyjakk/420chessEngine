@@ -26,7 +26,7 @@ enum class Opponent
 class Pieces
 {
 public:
-  Pieces(uint8_t weight, Opponent opponent);
+  Pieces(Opponent opponent);
   ~Pieces() = default;
 
   Opponent get_opponent_side() const;
@@ -38,8 +38,6 @@ protected:
   Opponent m_opponent;
   Bitboard m_pseudo_mask[MAX_BOARD_SQ];
 
-  uint8_t m_weight;
-
   virtual void __gen_pseudo_mask() = 0;
 };
 
@@ -48,8 +46,8 @@ protected:
 class King : public Pieces
 {
 public:
-  King(uint8_t weight, Opponent opponent) : 
-        Pieces(weight, opponent)
+  King(Opponent opponent) : 
+        Pieces(opponent)
   {
     __gen_pseudo_mask();
   };
@@ -67,8 +65,8 @@ private:
 class Rook : public Pieces
 {
 public:
-  Rook(uint8_t weight, Opponent opponent) : 
-        Pieces(weight, opponent)
+  Rook(Opponent opponent) : 
+        Pieces(opponent)
   {
     __gen_pseudo_mask();
     __gen_blocker_mask();
@@ -94,8 +92,8 @@ private:
 class Bishop : public Pieces
 {
 public:
-  Bishop(uint8_t weight, Opponent opponent) : 
-          Pieces(weight, opponent)
+  Bishop(Opponent opponent) : 
+          Pieces(opponent)
   {
     __gen_pseudo_mask();
     __gen_blocker_mask();
@@ -122,8 +120,8 @@ private:
 class Knight : public Pieces
 {
 public:
-  Knight(uint8_t weight, Opponent opponent) : 
-          Pieces(weight, opponent)
+  Knight(Opponent opponent) : 
+          Pieces(opponent)
   {
     __gen_pseudo_mask();
   };
@@ -141,39 +139,22 @@ private:
 class Pawn : public Pieces
 {
 public:
-  Pawn(uint8_t weight, Opponent opponent) : 
-        Pieces(weight, opponent)
+  Pawn(Opponent opponent) : 
+        Pieces(opponent)
   {
     __gen_pseudo_mask();
+    __gen_capture_mask();
   };
 
   ~Pawn() = default;
 
+          Bitboard get_pawn_capture(std::size_t sq) const;
   virtual Bitboard get_moves(std::size_t sq, Bitboard occ = NULL) const;
 
 private:
-  virtual void __gen_pseudo_mask();
-};
+  Bitboard m_capture_mask[MAX_BOARD_SQ];
 
-/* > --------------------------------------------------         >>       QUEEN*/
-
-class Queen : public Pieces
-{
-public:
-  Queen(uint8_t weight, Opponent opponent) : 
-         Pieces(weight, opponent)
-  {
-    m_bishop_moves = new Bishop(weight, opponent);
-    m_rook_moves   = new Rook(weight, opponent);
-  };
-
-  ~Queen() = default;
-
-  virtual Bitboard get_moves(std::size_t sq, Bitboard occ = NULL) const;
-
-private:
-  Bishop *m_bishop_moves;
-  Rook   *m_rook_moves;
+          void __gen_capture_mask();
   virtual void __gen_pseudo_mask();
 };
 

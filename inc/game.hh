@@ -9,11 +9,11 @@
 #include <SDL2/SDL.h>
 #include <SDL2/SDL_image.h>
 #include <GL/glu.h>
-#include "../inc/traceAndError.hh"
-#include "../inc/errorCodes.hh"
-#include "../inc/consoleLogger.hh"
-#include "../inc/textureManager.hh"
-#include "../inc/gameManager.hh"
+#include "traceAndError.hh"
+#include "errorCodes.hh"
+#include "consoleLogger.hh"
+#include "textureManager.hh"
+#include "gameManager.hh"
 
 using namespace std;
 using namespace chrono;

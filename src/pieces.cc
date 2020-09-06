@@ -163,18 +163,6 @@ uint64_t bishop_magic_numbers[64] = {
 
 /* > Local functions **********************************************************/ 
 
-static void generate_blocker_mask(Bitboard* pseudo, Bitboard* blocker)
-{
-  Bitboard bounds_mask = Bitboard(0x7e7e7e7e7e7e00);
-
-  for (int sq = 0; sq < MAX_BOARD_SQ; ++sq)
-  {
-    blocker[sq] = pseudo[sq] & bounds_mask;
-  }
-
-  return;
-}
-
 static int get_ls1b_index(Bitboard bitboard)
 {
     return bitboard != 0 ? ((bitboard & -bitboard) - 1).board.count() : -1;
@@ -199,132 +187,10 @@ static Bitboard set_occupancy(int index, int bits_in_mask, Bitboard attack_mask)
   return occ;
 }
 
-
-
-//##############################################################################
-// pseudo random number state
-unsigned int random_state = 1804289383;
-
-// generate 32-bit pseudo legal numbers
-unsigned int get_random_U32_number()
-{
-    // get current state
-    unsigned int number = random_state;
-
-    // XOR shift algorithm
-    number ^= number << 13;
-    number ^= number >> 17;
-    number ^= number << 5;
-
-    // update random number state
-    random_state = number;
-
-    // return random number
-    return number;
-}
-
-// generate 64-bit pseudo legal numbers
-uint64_t get_random_U64_number()
-{
-    // define 4 random numbers
-    uint64_t n1, n2, n3, n4;
-
-    // init random numbers slicing 16 bits from MS1B side
-    n1 = (uint64_t)(get_random_U32_number()) & 0xFFFF;
-    n2 = (uint64_t)(get_random_U32_number()) & 0xFFFF;
-    n3 = (uint64_t)(get_random_U32_number()) & 0xFFFF;
-    n4 = (uint64_t)(get_random_U32_number()) & 0xFFFF;
-
-    // return random number
-    return n1 | (n2 << 16) | (n3 << 32) | (n4 << 48);
-}
-
-// generate magic number candidate
-Bitboard generate_magic_number()
-{
-    return Bitboard(get_random_U64_number() & get_random_U64_number() & get_random_U64_number());
-}
-
-
-uint64_t Rook::find_magic_number(int square, int relevant_bits)
-{
-    // init occupancies
-    Bitboard occupancies[4096];
-
-    // init attack tables
-    Bitboard attacks[4096];
-
-    // init used attacks
-    Bitboard used_attacks[4096];
-
-    // init attack mask for a current piece
-    Bitboard attack_mask = m_blocker_mask[square];
-
-    // init occupancy indicies
-    int occupancy_indicies = 1 << relevant_bits;
-
-    // loop over occupancy indicies
-    for (int index = 0; index < occupancy_indicies; index++)
-    {
-        // init occupancies
-        occupancies[index] = set_occupancy(index, relevant_bits, attack_mask);
-
-        // init attacks
-        attacks[index] = __moves_with_occ_at(square, occupancies[index]);
-    }
-
-    // test magic numbers loop
-    for (int random_count = 0; random_count < 100000000; random_count++)
-    {
-        // generate magic number candidate
-        Bitboard magic_number = generate_magic_number();
-
-        // skip inappropriate magic numbers
-        if (((attack_mask * magic_number) & 0xFF00000000000000).board.count() < 6) continue;
-
-        // init used attacks
-        memset(used_attacks, 0ULL, sizeof(used_attacks));
-
-        // init index & fail flag
-        int index, fail;
-
-        // test magic index loop
-        for (index = 0, fail = 0; !fail && index < occupancy_indicies; index++)
-        {
-            // init magic index
-            int magic_index = ((occupancies[index] * magic_number) >> (64 - relevant_bits)).board.to_ulong();
-
-            // if magic index works
-            if (used_attacks[magic_index] == 0ULL)
-                // init used attacks
-                used_attacks[magic_index] = attacks[index];
-
-            // otherwise
-            else if (used_attacks[magic_index] != attacks[index])
-                // magic index doesn't work
-                fail = 1;
-        }
-
-        // if magic number works
-        if (!fail)
-            // return it
-            return magic_number.board.to_ullong();
-    }
-
-    // if magic number doesn't work
-    printf("  Magic number fails!\n");
-    return 0ULL;
-}
-
-//##############################################################################
-
-
 /* > Methods definitions ******************************************************/
 
-Pieces::Pieces(uint8_t weight,
-               Opponent opponent)
+Pieces::Pieces(Opponent opponent)
 {
-  m_weight   = weight;
   m_opponent = opponent;
 }
 
@@ -337,7 +203,7 @@ Opponent Pieces::get_opponent_side() const
 
 Bitboard King::get_moves(std::size_t sq, Bitboard occ) const
 {
-  return Bitboard();
+  return m_pseudo_mask[sq];
 }
 
 void King::__gen_pseudo_mask()
@@ -351,23 +217,6 @@ void King::__gen_pseudo_mask()
     m_pseudo_mask[sq] |= b;
   }
 
-  return;
-}
-
-/* > --------------------------------------------------         >>       QUEEN*/
-
-Bitboard Queen::get_moves(std::size_t sq, Bitboard occ) const
-{
-  Bitboard b = Bitboard(0x0);
-  b |= m_bishop_moves -> get_moves(sq, occ);
-  b |= m_rook_moves   -> get_moves(sq, occ);
-
-  return b;
-}
-
-void Queen::__gen_pseudo_mask()
-{
-  
   return;
 }
 
@@ -640,7 +489,13 @@ Bitboard Bishop::__moves_with_occ_at(uint8_t sq, Bitboard occ) const
 
 void Bishop::__gen_blocker_mask()
 {
-  generate_blocker_mask(m_pseudo_mask, m_blocker_mask);
+  Bitboard bounds_mask = Bitboard(0x7e7e7e7e7e7e00);
+
+  for (int sq = 0; sq < MAX_BOARD_SQ; ++sq)
+  {
+    m_blocker_mask[sq] = m_pseudo_mask[sq] & bounds_mask;
+  }
+
   return;
 }
 
@@ -688,7 +543,7 @@ void Bishop::__gen_pseudo_mask()
 
 Bitboard Knight::get_moves(std::size_t sq, Bitboard occ) const
 {
-  return Bitboard();
+  return m_pseudo_mask[sq];
 }
 
 void Knight::__gen_pseudo_mask()
@@ -715,7 +570,12 @@ void Knight::__gen_pseudo_mask()
 
 Bitboard Pawn::get_moves(std::size_t sq, Bitboard occ) const
 {
-  return Bitboard();
+  return m_pseudo_mask[sq];
+}
+
+Bitboard Pawn::get_pawn_capture(std::size_t sq) const
+{
+  return m_capture_mask[sq];
 }
 
 void Pawn::__gen_pseudo_mask()
@@ -728,6 +588,27 @@ void Pawn::__gen_pseudo_mask()
   {
     Bitboard b = Bitboard().board.set(sq);
     m_pseudo_mask[sq] |= (b.*func)();
+  }
+
+  return;
+}
+
+void Pawn::__gen_capture_mask()
+{
+  Bitboard (Bitboard::*west)(void) const;
+  Bitboard (Bitboard::*east)(void) const;
+
+  west = m_opponent == Opponent::BLACK ?
+          &Bitboard::move_so_we : &Bitboard::move_no_we;
+
+  east = m_opponent == Opponent::BLACK ?
+          &Bitboard::move_so_ea : &Bitboard::move_no_ea;
+
+  for (int sq = 0; sq < MAX_BOARD_SQ; ++sq)
+  {
+    Bitboard b = Bitboard().board.set(sq);
+    m_capture_mask[sq] |= (b.*west)();
+    m_capture_mask[sq] |= (b.*east)();
   }
 
   return;

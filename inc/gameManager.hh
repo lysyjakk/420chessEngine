@@ -8,6 +8,7 @@
 #include "errorCodes.hh"
 #include "pieces.hh"
 #include "bitboard.hh"
+#include "movelookup.hh"
 
 #define MAX_BOARD_COLUMNS 8
 #define MAX_BOARD_ROWS    8
@@ -24,69 +25,7 @@ enum CoordDecoder
   A8, B8, C8, D8, E8, F8, G8, H8
 };
 
-enum TypesOfPieces
-{
-  NONE,
-
-// White pieces
-  WHITE_PAWN,
-  WHITE_ROOK,
-  WHITE_KNIGHT,
-  WHITE_BISHOP,
-  WHITE_QUEEN,
-  WHITE_KING,
-
-// Black pieces
-  BLACK_PAWN,
-  BLACK_ROOK,
-  BLACK_KNIGHT,
-  BLACK_BISHOP,
-  BLACK_QUEEN,
-  BLACK_KING
-};
-
 typedef std::array< TypesOfPieces, 64 > BitBoardToGUI;
-
-typedef struct
-{
-  King   *king;
-  Queen  *queen;
-  Rook   *rook;
-  Knight *knight;
-  Bishop *bishop;
-  Pawn   *b_pawn;
-  Pawn   *w_pawn;
-} Moves;
-
-
-typedef struct
-{
-  /* The white piece positions */
-  Bitboard white_pawns;
-  Bitboard white_rooks;
-  Bitboard white_knights;
-  Bitboard white_bishops;
-  Bitboard white_queens;
-  Bitboard white_king;
-
-  /* The black piece positions */
-  Bitboard black_pawns;
-  Bitboard black_rooks;
-  Bitboard black_knights;
-  Bitboard black_bishops;
-  Bitboard black_queens;
-  Bitboard black_king;
-} ChessBoard;
-
-template <typename S> Bitboard* get_begin(S *s)
-{
-    return (Bitboard*)s;
-}
-
-template <typename S> Bitboard* get_end(S *s)
-{
-    return (Bitboard*)((uint8_t*)s+sizeof(*s));
-}
 
 class GameManager
 {
@@ -103,21 +42,8 @@ public:
   BitBoardToGUI get_board() const;
 
 private:
-  BitBoardToGUI m_pieces_pos;
-  ChessBoard    m_board;
-  Moves         m_pseudolegal_mv;
-
-  bool        __check_valid_of_move(ChessBoard    target_board,
-                                    TypesOfPieces piece)        const;
-  bool        __check_piece_move   (Bitboard      target_piece) const;
-
-
-  ChessBoard* __gen_target_board   (TypesOfPieces piece,
-                                    uint8_t       x_src,
-                                    uint8_t       y_src,
-                                    uint8_t       x_dest,
-                                    uint8_t       y_dest) const;
-
+  BitBoardToGUI  m_pieces_pos;
+  MoveLookup    *m_move_checker;
 };
 
 #endif // GAMEMANAGER_H_INCLUDED

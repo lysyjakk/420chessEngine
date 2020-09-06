@@ -18,6 +18,7 @@ add_executable(
   ../src/gameManager.cc
   ../src/pieces.cc
   ../src/bitboard.cc
+  ../src/movelookup.cc
 )
 
 include_directories(${SDL2_INCLUDE_DIRS} ${SDL2_IMAGE_INCLUDE_DIRS})
