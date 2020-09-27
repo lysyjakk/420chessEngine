@@ -1,104 +1,54 @@
 #include "../inc/gameManager.hh"
 
-#define QUEEN_WEIGHT      9
-#define ROOK_WEIGHT       5
-#define KNIGHT_WEIGHT     3
-#define BISHOP_WEIGHT     3
-#define PAWN_WEIGHT       1
-#define KING_WEIGHT      -1
+#define COORD_TO_BIT_POS(x , y) (x * 8 + y)
 
 void GameManager::start_new_game()
 {
   TRACE_INFO("Initialization new game...");
-  int init_board [MAX_BOARD_COLUMNS][MAX_BOARD_ROWS] =
-    {
-      // A   B   C   D   E   F   G   H
-      {  2,  3,  4,  6,  5,  4,  3,  2 },// 1
-      {  1,  1,  1,  1,  1,  1,  1,  1 },// 2
-      {  0,  0,  0,  0,  0,  0,  0,  0 },// 3
-      {  0,  0,  0,  0,  0,  0,  0,  0 },// 4
-      {  0,  0,  0,  0,  0,  0,  0,  0 },// 5
-      {  0,  0,  0,  0,  0,  0,  0,  0 },// 6
-      {  7,  7,  7,  7,  7,  7,  7,  7 },// 7
-      {  8,  9, 10, 12, 11, 10,  9,  8 } // 8
-    };
+  TRACE_INFO("Initialization bitboards...");
 
-  for (int row = 0; row < MAX_BOARD_ROWS; ++row)
-    {
-      for (int col = 0; col < MAX_BOARD_COLUMNS; ++col)
-      {
-        Bitboard b;
+  m_black_board.king    = Bitboard(0x1000000000000000ULL);
+  m_black_board.queens  = Bitboard(0x0800000000000000ULL);
+  m_black_board.rooks   = Bitboard(0x8100000000000000ULL);
+  m_black_board.knights = Bitboard(0x4200000000000000ULL);
+  m_black_board.bishops = Bitboard(0x2400000000000000ULL);
+  m_black_board.pawns   = Bitboard(0x00ff000000000000ULL);
 
-        switch (init_board[row][col])
-        {
-        //> BLACK PIECES
-        case BLACK_ROOK:
-          m_pieces_pos[(row * 8 + col)] = BLACK_ROOK;
-        break;
+  m_white_board.king    = Bitboard(0x0000000000000010ULL);
+  m_white_board.queens  = Bitboard(0x0000000000000008ULL);
+  m_white_board.rooks   = Bitboard(0x0000000000000081ULL);
+  m_white_board.knights = Bitboard(0x0000000000000042ULL);
+  m_white_board.bishops = Bitboard(0x0000000000000024ULL);
+  m_white_board.pawns   = Bitboard(0x000000000000ff00ULL);
 
-        case BLACK_KNIGHT:
-          m_pieces_pos[(row * 8 + col)] = BLACK_KNIGHT;
-        break;
+  TRACE_INFO("Initialization bitboards done");
 
-        case BLACK_BISHOP:
-          m_pieces_pos[(row * 8 + col)] = BLACK_BISHOP;
-        break;
+  TRACE_INFO("Setting necessary moves varables...");
 
-        case BLACK_QUEEN:
-          m_pieces_pos[(row * 8 + col)] = BLACK_QUEEN;
-        break;
+  m_bot          = NegaMax();
+  m_move_checker = MoveLookup();
 
-        case BLACK_KING:
-          m_pieces_pos[(row * 8 + col)] = BLACK_KING;
-        break;
+  m_move_checker.init();
 
-        case BLACK_PAWN:
-          m_pieces_pos[(row * 8 + col)] = BLACK_PAWN;
-        break;
+  m_player_turn = Site::WHITE;
 
-        //> WHITE PIECES
+  m_special_moves.en_passant = ENPASS_NO_SQ;
+  m_special_moves.castle = BLACK_KING_SIDE | BLACK_QUEEN_SIDE |
+                           WHITE_KING_SIDE | WHITE_QUEEN_SIDE;
 
-        case WHITE_ROOK:
-          m_pieces_pos[(row * 8 + col)] = WHITE_ROOK;
-        break;
+  m_special_moves.w_double_mv_pawn = Bitboard(Mask["FIELD_2"]);
+  m_special_moves.b_double_mv_pawn = Bitboard(Mask["FIELD_7"]);
 
-        case WHITE_KNIGHT:
-          m_pieces_pos[(row * 8 + col)] = WHITE_KNIGHT;
-        break;
-
-        case WHITE_BISHOP:
-          m_pieces_pos[(row * 8 + col)] = WHITE_BISHOP;
-        break;
-
-        case WHITE_QUEEN:
-          m_pieces_pos[(row * 8 + col)] = WHITE_QUEEN;
-        break;
-
-        case WHITE_KING:
-          m_pieces_pos[(row * 8 + col)] = WHITE_KING;
-        break;
-
-        case WHITE_PAWN:
-          m_pieces_pos[(row * 8 + col)] = WHITE_PAWN;
-        break;
-        //> NONE
-
-        case NONE:
-        break;
-
-        default:
-          break;
-      }
-    }
+  //Clear GUI board
+  for (int itr = 0; itr < MAX_BOARD_SQ; ++itr)
+  {
+    m_pieces_pos[itr] = NONE;
   }
 
-  TRACE_INFO("Initialization move generator...");
+  __set_up_GUI_board(m_white_board, Site::WHITE);
+  __set_up_GUI_board(m_black_board, Site::BLACK);
 
-  m_move_checker = new MoveLookup();
-  m_move_checker -> init();
-
-  TRACE_INFO("Move generator was created.");
-
+  TRACE_INFO("Setting necessary moves varables done");
   TRACE_INFO("Initialization new game done");
 
   return;
@@ -109,13 +59,163 @@ void GameManager::move_piece(uint8_t x_src,
                              uint8_t x_dest,
                              uint8_t y_dest)
 {
-  m_move_checker -> is_move_valid(x_dest, y_dest,
-                                  m_pieces_pos[(y_src * 8 + x_src)],
-                                  SiteMove::BLACK_MOVE);
+  std::size_t sq_src = COORD_TO_BIT_POS(y_src, x_src);
+  std::size_t sq_dest = COORD_TO_BIT_POS(y_dest, x_dest);
+
+  if (m_player_turn == Site::WHITE)
+  {
+    MoveToMake move;
+
+    move.sq_src     = sq_src;
+    move.sq_dest    = sq_dest;
+    move.piece_type = m_pieces_pos[sq_src];
+    move.site       = Site::WHITE;
+    move.special_mv = m_special_moves;
+
+    if ( m_move_checker.is_move_valid(move, m_white_board, m_black_board) )
+    {
+      m_move_checker.make_move(&move, &m_white_board, &m_black_board);
+
+      m_special_moves = move.special_mv;
+      change_player_turn(m_player_turn);
+
+      //Clear GUI board
+      for (int itr = 0; itr < MAX_BOARD_SQ; ++itr)
+      {
+        m_pieces_pos[itr] = NONE;
+      }
+
+      __set_up_GUI_board(m_white_board, Site::WHITE);
+      __set_up_GUI_board(m_black_board, Site::BLACK);
+    }
+  }
+  else
+  {
+    MoveToMake move;
+    BestMove best_move;
+
+    best_move = m_bot.get_best_move(m_white_board,
+                        m_black_board,
+                        m_player_turn,
+                        m_special_moves);
+
+      move.sq_src     = std::get<0>(best_move);
+      move.sq_dest    = std::get<1>(best_move);
+      move.piece_type = m_pieces_pos[std::get<0>(best_move)];
+      move.site       = Site::BLACK;
+      move.special_mv = m_special_moves;
+
+      m_move_checker.make_move(&move, &m_black_board, &m_white_board);
+
+      m_special_moves = move.special_mv;
+      change_player_turn(m_player_turn);
+
+      //Clear GUI board
+      for (int itr = 0; itr < MAX_BOARD_SQ; ++itr)
+      {
+        m_pieces_pos[itr] = NONE;
+      }
+
+      __set_up_GUI_board(m_white_board, Site::WHITE);
+      __set_up_GUI_board(m_black_board, Site::BLACK);
+  }
+
   return;
 }
 
 BitBoardToGUI GameManager::get_board() const
 {
   return m_pieces_pos;
+}
+
+void GameManager::__set_up_GUI_board(ChessBoard board, Site site)
+{
+    //Set up all white pieces
+    int index = 1;
+
+    for (Bitboard* element = get_begin(&board);
+         element < get_end(&board);
+         ++element)
+    {
+      switch (index)
+      {
+
+      case 1: //Pawn
+      {
+        std::vector< std::size_t > sq_vector = element -> scan_for_bit_index();
+
+        for (auto sq : sq_vector)
+        {
+          m_pieces_pos[sq] = site == Site::BLACK ? BLACK_PAWN
+                                                 : WHITE_PAWN;
+        }
+      }
+      break;
+
+      case 2: //Rook
+      {
+        std::vector< std::size_t > sq_vector = element -> scan_for_bit_index();
+
+        for (auto sq : sq_vector)
+        {
+          m_pieces_pos[sq] = site == Site::BLACK ? BLACK_ROOK
+                                                 : WHITE_ROOK;
+        }
+      }
+      break;
+
+      case 3: //Knight
+      {
+        std::vector< std::size_t > sq_vector = element -> scan_for_bit_index();
+
+        for (auto sq : sq_vector)
+        {
+          m_pieces_pos[sq] = site == Site::BLACK ? BLACK_KNIGHT
+                                                 : WHITE_KNIGHT;
+        }
+      }
+      break;
+
+      case 4: //Bishop
+      {
+        std::vector< std::size_t > sq_vector = element -> scan_for_bit_index();
+
+        for (auto sq : sq_vector)
+        {
+          m_pieces_pos[sq] = site == Site::BLACK ? BLACK_BISHOP
+                                                 : WHITE_BISHOP;
+        }
+      }
+      break;
+
+      case 5: //Queen
+      {
+        std::vector< std::size_t > sq_vector = element -> scan_for_bit_index();
+
+        for (auto sq : sq_vector)
+        {
+          m_pieces_pos[sq] = site == Site::BLACK ? BLACK_QUEEN
+                                                 : WHITE_QUEEN;
+        }
+      }
+      break;
+
+      case 6: //King
+      {
+        std::vector< std::size_t > sq_vector = element -> scan_for_bit_index();
+
+        for (auto sq : sq_vector)
+        {
+          m_pieces_pos[sq] = site == Site::BLACK ? BLACK_KING
+                                                 : WHITE_KING;
+        }
+      }
+      break;
+
+      default:
+        break;
+      }
+
+      ++index;
+    }
 }

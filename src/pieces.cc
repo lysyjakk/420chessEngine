@@ -163,11 +163,6 @@ uint64_t bishop_magic_numbers[64] = {
 
 /* > Local functions **********************************************************/ 
 
-static int get_ls1b_index(Bitboard bitboard)
-{
-    return bitboard != 0 ? ((bitboard & -bitboard) - 1).board.count() : -1;
-}
-
 static Bitboard set_occupancy(int index, int bits_in_mask, Bitboard attack_mask)
 {
   Bitboard occ = Bitboard(0x0);
@@ -578,6 +573,18 @@ Bitboard Pawn::get_pawn_capture(std::size_t sq) const
   return m_capture_mask[sq];
 }
 
+Bitboard Pawn::get_pawn_double(std::size_t sq) const
+{
+  Bitboard mask = m_opponent == Opponent::BLACK ? Mask["FIELD_7"]
+                                                : Mask["FIELD_2"];
+  if ((Bitboard().set_bit_at(sq) & mask) != 0)
+  {
+    return m_double_moves[((int)sq) % MAX_DOUBLE_PAWN_MV];
+  }
+
+  return Bitboard(0x0);
+}
+
 void Pawn::__gen_pseudo_mask()
 {
   Bitboard (Bitboard::*func)(void) const;
@@ -612,4 +619,24 @@ void Pawn::__gen_capture_mask()
   }
 
   return;
+}
+
+void Pawn::__gen_double_mv_mask()
+{
+  Bitboard (Bitboard::*func)(void) const;
+  func = m_opponent == Opponent::BLACK ?
+          &Bitboard::move_south : &Bitboard::move_north;
+
+  int site_modify = m_opponent == Opponent::BLACK ? 48 : 8;
+
+  for (int sq = 0; sq < MAX_DOUBLE_PAWN_MV; ++sq)
+  {
+    Bitboard b = Bitboard(0x0);
+
+    b.board.set(std::size_t(sq + site_modify));
+
+    m_double_moves[sq] |= (b.*func)();
+    b |= (b.*func)();
+    m_double_moves[sq] |= (b.*func)();
+  }
 }

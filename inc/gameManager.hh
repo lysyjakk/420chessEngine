@@ -4,11 +4,13 @@
 #include <array>
 #include <algorithm>
 #include <vector>
+#include <tuple>
 #include "traceAndError.hh"
 #include "errorCodes.hh"
 #include "pieces.hh"
 #include "bitboard.hh"
 #include "movelookup.hh"
+#include "negamax.hh"
 
 #define MAX_BOARD_COLUMNS 8
 #define MAX_BOARD_ROWS    8
@@ -42,8 +44,21 @@ public:
   BitBoardToGUI get_board() const;
 
 private:
-  BitBoardToGUI  m_pieces_pos;
-  MoveLookup    *m_move_checker;
+  BitBoardToGUI m_pieces_pos;
+
+  ChessBoard    m_white_board;
+  ChessBoard    m_black_board;
+
+  NegaMax       m_bot;
+
+  MoveLookup    m_move_checker;
+
+  SpecialMoves  m_special_moves;
+
+  Site          m_player_turn;
+
+
+  void __set_up_GUI_board(ChessBoard board, Site site);
 };
 
 #endif // GAMEMANAGER_H_INCLUDED

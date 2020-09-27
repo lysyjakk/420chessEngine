@@ -79,8 +79,18 @@ static void got_SIGINT_signal(int)
 
 void Game::run_game()
 {
-  game_manager.start_new_game();
+  std::string program_name =  std::string("\n\n\
+  _  _  ____   ___     ____ _                  _____ _   _  ____ ___ _   _ _____ \n\
+ | || ||___ \\ / _ \\   / ___| |__   ___ ___ ___| ____| \\ | |/ ___|_ _| \\ | | ____|\n\
+ | || |_ __) | | | | | |   | '_ \\ / _ / __/ __|  _| |  \\| | |  _ | ||  \\| |  _|  \n\
+ |__   _/ __/| |_| | | |___| | | |  __\\__ \\__ | |___| |\\  | |_| || || |\\  | |___ \n\
+    |_||_____|\\___/   \\____|_| |_|\\___|___|___|_____|_| \\_|\\____|___|_| \\_|_____|\n\
+                                                                                \n\
+  ");
 
+  std::cout << program_name;
+
+  game_manager.start_new_game();
   game_loop();
 
   return;
@@ -265,16 +275,16 @@ void Game::place_all_pieces()
 {
   BitBoardToGUI board = game_manager.get_board();
 
-  for (uint8_t row = 0; row < MAX_BOARD_ROWS; ++row)
+  for (int row = 0; row < MAX_BOARD_ROWS; ++row)
   {
-    for (uint8_t column = 0; column < MAX_BOARD_COLUMNS; ++column)
+    for (int column = 0; column < MAX_BOARD_COLUMNS; ++column)
     {
       uint32_t x_pos = column;
       uint32_t y_pos = row;
 
       board_to_fixed_pos(x_pos, y_pos);
 
-      switch (board[63 - (row * 8 + column)])
+      switch (board[((7-row) * 8 + column)])
       {
       // White pieces
       case WHITE_PAWN:
@@ -329,7 +339,6 @@ void Game::place_all_pieces()
       break;
 
       case NONE:
-        continue;
       break;
 
       default:
@@ -367,8 +376,7 @@ void Game::handle_event()
         else if (is_piece_grabbed == true)
         {
           is_piece_grabbed = false;
-
-          fixed_to_board_pos(field_selction_pos.x, field_selction_pos.y);
+          fixed_to_board_pos(field_selction_pos.x, field_selction_pos.y); 
           game_manager.move_piece(selected_piece.x,
                                   FLIP_Y_AXIS(selected_piece.y),
                                   field_selction_pos.x,

@@ -2,14 +2,27 @@
 #define MOVE_LOOKUP_H_INCLUDED
 
 #include <vector>
+#include <bitset>
+#include <tuple>
 #include "pieces.hh"
 #include "traceAndError.hh"
 #include "errorCodes.hh"
+#include "promotion.hh"
 
-enum class SiteMove
+#define ENPASS_NO_SQ 0
+
+enum class Site
 {
-  WHITE_MOVE,
-  BLACK_MOVE
+  WHITE,
+  BLACK
+};
+
+enum CastleRights
+{
+  WHITE_KING_SIDE  = 1,
+  WHITE_QUEEN_SIDE = 2,
+  BLACK_KING_SIDE  = 4,
+  BLACK_QUEEN_SIDE = 8
 };
 
 enum TypesOfPieces
@@ -35,6 +48,15 @@ enum TypesOfPieces
 
 typedef struct
 {
+  std::size_t src;
+  std::size_t desc;
+
+  TypesOfPieces piece_type;
+
+} SingleMoveGen;
+
+typedef struct
+{
   Bitboard pawns;
   Bitboard rooks;
   Bitboard knights;
@@ -43,7 +65,29 @@ typedef struct
   Bitboard king;
 } ChessBoard;
 
-static struct Moves
+typedef struct
+{
+  std::bitset<64> en_passant;
+  std::bitset<4>  castle;
+
+  Bitboard w_double_mv_pawn;
+  Bitboard b_double_mv_pawn;
+
+} SpecialMoves;
+
+typedef struct
+{
+  std::size_t   sq_src;
+  std::size_t   sq_dest;
+  TypesOfPieces piece_type;
+  Site          site;
+  SpecialMoves  special_mv;
+
+} MoveToMake;
+
+typedef std::vector< SingleMoveGen > GenMoves;
+
+static struct PseudoLegalMoves
 {
   King   *king;
   Rook   *rook;
@@ -51,8 +95,17 @@ static struct Moves
   Bishop *bishop;
   Pawn   *b_pawn;
   Pawn   *w_pawn;
-} m_pseudolegal_mv;
+} pseudolegal_mv;
 
+static inline void change_player_turn(Site &site)
+{
+  int turn_index = (int)site;
+
+  turn_index ^= 1;
+  site = Site(turn_index);
+
+  return;
+}
 
 class MoveLookup
 {
@@ -62,27 +115,49 @@ public:
 
   void init();
 
-  bool is_move_valid(uint8_t x_desc,
-                     uint8_t y_desc,
-                     TypesOfPieces piece_type,
-                     SiteMove      site_move);
+  void make_move(MoveToMake *move,
+                 ChessBoard *ally_board,
+                 ChessBoard *enemy_board);
+
+  GenMoves gen_moves_current_state(ChessBoard   ally_board,
+                                   ChessBoard   enemy_board,
+                                   Site         site,
+                                   SpecialMoves special_mv);
+
+  bool is_move_valid(MoveToMake move,
+                     ChessBoard ally_board,
+                     ChessBoard enemy_board);
+
+  bool is_king_checkmate(Site site);
+
 
 private:
-  ChessBoard m_white_pieces;
-  ChessBoard m_black_pieces;
-  Bitboard   m_white_occ;
-  Bitboard   m_black_occ;
+  ChessBoard   m_ally_board;
+  ChessBoard   m_enemy_board;
+  ChessBoard  *m_white_board;
+  ChessBoard  *m_black_board;
 
-  //Bitboard __gen_occupancy_board(ChessBoard board);
-  Bitboard __get_white_occupancies();
-  Bitboard __get_black_occupancies();
-  Bitboard __get_both_occupancies();
+  SpecialMoves m_special_moves;
 
-  bool __is_sq_attacked(std::size_t sq, Opponent opp);
-  bool __is_move_correct(uint8_t       x_desc,
-                         uint8_t       y_desc,
+  bool __is_sq_attacked(std::size_t sq, Site site);
+
+  bool __is_move_correct(std::size_t   sq_src,
+                         std::size_t   sq_dest,
                          TypesOfPieces piece_type,
-                         SiteMove      site_move);
+                         Site          site);
+
+  bool __is_sq_occupate_by(std::size_t sq,
+                           Site        site);
+
+  bool __is_king_checked(Site site);
+
+  bool __is_special_move(std::size_t   sq_src,
+                         std::size_t   sq_dest,
+                         TypesOfPieces piece_type,
+                         Site          site);
+
+  void __remove_piece_at_sq(std::size_t sq,
+                            ChessBoard  *board);
 };
 
 

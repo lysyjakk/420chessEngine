@@ -4,6 +4,7 @@
 /* > Defines ******************************************************************/
 
 #define MAX_BOARD_SQ 64
+#define MAX_DOUBLE_PAWN_MV 8
 
 /* > Includes *****************************************************************/
 
@@ -144,17 +145,21 @@ public:
   {
     __gen_pseudo_mask();
     __gen_capture_mask();
+    __gen_double_mv_mask();
   };
 
   ~Pawn() = default;
 
           Bitboard get_pawn_capture(std::size_t sq) const;
+          Bitboard get_pawn_double(std::size_t sq) const;
   virtual Bitboard get_moves(std::size_t sq, Bitboard occ = NULL) const;
 
 private:
   Bitboard m_capture_mask[MAX_BOARD_SQ];
+  Bitboard m_double_moves[MAX_DOUBLE_PAWN_MV];
 
           void __gen_capture_mask();
+          void __gen_double_mv_mask();
   virtual void __gen_pseudo_mask();
 };
 

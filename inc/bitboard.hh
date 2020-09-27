@@ -9,7 +9,8 @@
 
 typedef std::bitset<64> bit_sqs;
 
-static std::map< std::string, bit_sqs > Mask {
+static std::map< std::string, bit_sqs > Mask
+{
   { "FIELD_1", bit_sqs(0x00000000000000ff) },
   { "FIELD_2", bit_sqs(0x000000000000ff00) },
   { "FIELD_3", bit_sqs(0x0000000000ff0000) },
@@ -23,12 +24,13 @@ static std::map< std::string, bit_sqs > Mask {
   { "RANK_B", bit_sqs(0x4040404040404040) },
   { "RANK_C", bit_sqs(0x2020202020202020) },
   { "RANK_D", bit_sqs(0x1010101010101010) },
-  { "RANK_E", bit_sqs(0x808080808080808) },
-  { "RANK_F", bit_sqs(0x404040404040404) },
-  { "RANK_G", bit_sqs(0x202020202020202) },
-  { "RANK_H", bit_sqs(0x101010101010101) },
+  { "RANK_E", bit_sqs(0x0808080808080808) },
+  { "RANK_F", bit_sqs(0x0404040404040404) },
+  { "RANK_G", bit_sqs(0x0202020202020202) },
+  { "RANK_H", bit_sqs(0x0101010101010101) }
 
-  };
+};
+
 
 class Bitboard
 {
@@ -171,6 +173,21 @@ inline Bitboard operator*=(Bitboard &a, uint64_t amount)
 {
   a.board = a.board.to_ullong() * amount;
   return a;
+}
+
+static int get_ls1b_index(Bitboard bitboard)
+{
+  return bitboard != 0 ? ((bitboard & -bitboard) - 1).board.count() : -1;
+}
+
+template <typename S> Bitboard* get_begin(S *s)
+{
+    return (Bitboard*)s;
+}
+
+template <typename S> Bitboard* get_end(S *s)
+{
+    return (Bitboard*)((uint8_t*)s+sizeof(*s));
 }
 
 #endif // BITBOARD_H_INCLUDED

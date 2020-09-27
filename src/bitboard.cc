@@ -7,13 +7,14 @@
 /* > Public Methods ***********************************************************/
 
 void Bitboard::print()
+ {
+  std::cout << std::endl;
+  for (int i = 8; i > 0; i--)
   {
-    for (int i = 8; i > 0; i--)
-    {
-      std::bitset<8> temp(board.to_ulong() >> 8 * (i-1));
-      std::cout << temp << std::endl;
-    }
+    std::bitset<8> temp(board.to_ulong() >> 8 * (i-1));
+    std::cout << temp << std::endl;
   }
+}
 
 Bitboard Bitboard::set_bit_at(std::size_t index, bool val) const
 {

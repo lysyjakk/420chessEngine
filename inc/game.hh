@@ -14,6 +14,7 @@
 #include "consoleLogger.hh"
 #include "textureManager.hh"
 #include "gameManager.hh"
+#include "promotion.hh"
 
 using namespace std;
 using namespace chrono;
