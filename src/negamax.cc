@@ -1,5 +1,14 @@
 #include  "../inc/negamax.hh"
 
+#define PAWN_INDEX           0
+#define KNIGHT_INDEX         1
+#define BISHOP_INDEX         2
+#define ROOK_INDEX           3
+#define QUEEN_INDEX          4
+#define KING_INDEX           5
+#define BLACK_INDEX_MODIFIER 6
+#define WHITE_INDEX_MODIFIER 0
+
 enum {
   a1, b1, c1, d1, e1, f1, g1, h1,
   a2, b2, c2, d2, e2, f2, g2, h2,
@@ -135,15 +144,15 @@ BestMove NegaMax::get_best_move(ChessBoard   white_board,
   std::cout << "\n\nscore: " << __evaluate() << "\n\n";
   __negamax(-50000, 50000, 4);
 
-  std::cout << "-------------------- src --------------------" << std::endl;
+/*  std::cout << "-------------------- src --------------------" << std::endl;
   Bitboard().set_bit_at(std::get<0>(best_move)).print();
   std::cout << "-------------------- desc -------------------" << std::endl;
   Bitboard().set_bit_at(std::get<1>(best_move)).print();
   std::cout << "\n---------------------------------------------" << std::endl;
-
+*/
   return best_move;
 }
-
+int node;
 
 
 int NegaMax::__negamax(int alpha, int beta, int depth)
@@ -154,7 +163,8 @@ int NegaMax::__negamax(int alpha, int beta, int depth)
   }
 
   GenMoves legal_mv;
-  std::tuple< std::size_t, std::size_t > best_mv_sofar;
+  BestMove best_mv_sofar;
+
   int old_alpha = alpha;
 
   if (m_site == Site::WHITE)
@@ -193,8 +203,25 @@ int NegaMax::__negamax(int alpha, int beta, int depth)
     move.special_mv = m_special_mv;
 
     m_lookup.make_move(&move, ally_board, enemy_board);
-    change_player_turn(m_site);
 
+    m_special_mv = move.special_mv;
+
+
+    int dupa = __evaluate();
+
+              std::cout << "-------------------- info --------------------" << std::endl;
+  std::cout << "SITE: (" << (int)m_site << ")\n";
+  std::cout << "NODE: (" << node << ")\n";
+  std::cout << "SCORE: (" << dupa << ")\n";
+  std::cout << "-------------------- src --------------------" << std::endl;
+  Bitboard().set_bit_at(itr.src).print();
+  std::cout << "-------------------- desc -------------------" << std::endl;
+  Bitboard().set_bit_at(itr.desc).print();
+  std::cout << "\n---------------------------------------------" << std::endl;
+
+
+    change_player_turn(m_site);
+    node++;
     int score = -__negamax(-beta, -alpha, depth - 1);
 
     --half_move;
@@ -213,14 +240,14 @@ int NegaMax::__negamax(int alpha, int beta, int depth)
     if (score > alpha)
     {
       alpha = score;
-
+      
       if (half_move == 0)
       {
         best_mv_sofar = std::make_tuple(itr.src, itr.desc);
       }
     }
   }
-
+  
   if (old_alpha != alpha)
   {
     best_move = best_mv_sofar;
@@ -232,12 +259,29 @@ int NegaMax::__negamax(int alpha, int beta, int depth)
 int NegaMax::__evaluate()
 {
   int score = 0;
+
+  // Calculate score for white
+  score += __calculate_score(m_white_board, Site::WHITE);
+
+  // Calculate score for black
+  score += __calculate_score(m_black_board, Site::BLACK);
+
+
+  return m_site == Site::WHITE ? score : -score;
+}
+
+int NegaMax::__calculate_score(ChessBoard board,
+                               Site site)
+{
+  int score = 0;
   int index = 1;
+  int modifier = site == Site::BLACK ? BLACK_INDEX_MODIFIER
+                                     : WHITE_INDEX_MODIFIER;
   const int *score_array;
 
   // Calculate score for white
-  for (Bitboard* itr = get_begin(&m_white_board);
-       itr < get_end(&m_white_board);
+  for (Bitboard* itr = get_begin(&board);
+       itr < get_end(&board);
        ++itr)
   {
     std::vector<std::size_t> v = itr -> scan_for_bit_index();
@@ -246,98 +290,55 @@ int NegaMax::__evaluate()
     {
     case 1: //Pawns
       score_array = pawn_score;
-      score += material_score[0];
+      score += material_score[PAWN_INDEX + modifier];
     break;
 
     case 2: //Rook
       score_array = rook_score;
-      score += material_score[3];
+      score += material_score[ROOK_INDEX + modifier];
     break;
 
     case 3: //Knights
       score_array = knight_score;
-      score += material_score[1];
+      score += material_score[KNIGHT_INDEX + modifier];
     break;
 
     case 4: //Bishop
       score_array = bishop_score;
-      score += material_score[2];
+      score += material_score[BISHOP_INDEX + modifier];
     break;
 
     case 5: //Queen
-      score += material_score[4];
+      score += material_score[QUEEN_INDEX + modifier];
       continue;
     break;
 
     case 6: //King
       score_array = king_score;
-      score += material_score[5];
+      score += material_score[KING_INDEX + modifier];
     break;
 
     default:
     break;
     }
 
-    for (int i = 0; i < v.size(); ++i)
+    if (site == Site::WHITE)
     {
-      score -= score_array[ mirror_score[v[i]] ];
+      for (int i = 0; i < v.size(); ++i)
+      {
+        score += score_array[ v[i] ];
+      }
+    }
+    else
+    {
+      for (int i = 0; i < v.size(); ++i)
+      {
+        score -= score_array[ mirror_score[v[i]] ];
+      }
     }
 
     ++index;
   }
 
-  // Calculate score for black
-  index = 1;
-
-  for (Bitboard* itr = get_begin(&m_black_board);
-       itr < get_end(&m_black_board);
-       ++itr)
-  {
-    std::vector<std::size_t> v = itr -> scan_for_bit_index();
-
-    switch (index)
-    {
-    case 1: //Pawns
-      score_array = pawn_score;
-      score += material_score[6];
-    break;
-
-    case 2: //Rook
-      score_array = rook_score;
-      score += material_score[9];
-    break;
-
-    case 3: //Knights
-      score_array = knight_score;
-      score += material_score[7];
-    break;
-
-    case 4: //Bishop
-      score_array = bishop_score;
-      score += material_score[8];
-    break;
-
-    case 5: //Queen
-      score += material_score[10];
-      continue;
-    break;
-
-    case 6: //King
-      score_array = king_score;
-      score += material_score[11];
-    break;
-
-    default:
-    break;
-    }
-
-    for (int i = 0; i < v.size(); ++i)
-    {
-      score += score_array[ v[i] ];
-    }
-
-    ++index;
-  }
-
-  return m_site == Site::BLACK ? score : -score;
+  return score;
 }

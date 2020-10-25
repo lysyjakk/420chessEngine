@@ -582,81 +582,85 @@ GenMoves MoveLookup::gen_moves_current_state(ChessBoard   ally_board,
 
   piece_src_sq = ally_board.king.scan_for_bit_index();
 
-  Bitboard pseudo_mv = pseudolegal_mv.king -> get_moves(piece_src_sq[0]);
-
-  piece_src_desc  = pseudo_mv.scan_for_bit_index();
-  move.piece_type = type;
-  move.sq_src     = piece_src_sq[0];
-
-  for (std::size_t desc = 0; desc < piece_src_desc.size(); ++desc)
+  if ( piece_src_sq.size() != 0 )
   {
-    move.sq_dest = piece_src_desc[desc];
+    Bitboard pseudo_mv = pseudolegal_mv.king -> get_moves(piece_src_sq[0]);
 
-    if (is_move_valid(move, ally_board, enemy_board) == true)
+    piece_src_desc  = pseudo_mv.scan_for_bit_index();
+    move.piece_type = type;
+    move.sq_src     = piece_src_sq[0];
+
+    for (std::size_t desc = 0; desc < piece_src_desc.size(); ++desc)
     {
-      SingleMoveGen gen_mv;
+      move.sq_dest = piece_src_desc[desc];
 
-      gen_mv.src        = piece_src_sq[0];
-      gen_mv.desc       = piece_src_desc[desc];
-      gen_mv.piece_type = type;
+      if (is_move_valid(move, ally_board, enemy_board) == true)
+      {
+        SingleMoveGen gen_mv;
 
-      moves_v.push_back(gen_mv);
-    }
-  }
+        gen_mv.src        = piece_src_sq[0];
+        gen_mv.desc       = piece_src_desc[desc];
+        gen_mv.piece_type = type;
 
-  //Castle
-  if (site == Site::BLACK || piece_src_sq[0] == BLACK_KING_INIT_SQ)
-  {
-    move.sq_dest = B_CASTLE_K_SIDE_SQ;
-    if (is_move_valid(move, ally_board, enemy_board) == true)
-    {
-      SingleMoveGen gen_mv;
-
-      gen_mv.src        = piece_src_sq[0];
-      gen_mv.desc       = B_CASTLE_K_SIDE_SQ;
-      gen_mv.piece_type = type;
-
-      moves_v.push_back(gen_mv);
+        moves_v.push_back(gen_mv);
+      }
     }
 
-    move.sq_dest = B_CASTLE_Q_SIDE_SQ;
 
-    if (is_move_valid(move, ally_board, enemy_board) == true)
+    //Castle
+    if (site == Site::BLACK || piece_src_sq[0] == BLACK_KING_INIT_SQ)
     {
-      SingleMoveGen gen_mv;
+      move.sq_dest = B_CASTLE_K_SIDE_SQ;
+      if (is_move_valid(move, ally_board, enemy_board) == true)
+      {
+        SingleMoveGen gen_mv;
 
-      gen_mv.src        = piece_src_sq[0];
-      gen_mv.desc       = B_CASTLE_Q_SIDE_SQ;
-      gen_mv.piece_type = type;
+        gen_mv.src        = piece_src_sq[0];
+        gen_mv.desc       = B_CASTLE_K_SIDE_SQ;
+        gen_mv.piece_type = type;
 
-      moves_v.push_back(gen_mv);
+        moves_v.push_back(gen_mv);
+      }
+
+      move.sq_dest = B_CASTLE_Q_SIDE_SQ;
+
+      if (is_move_valid(move, ally_board, enemy_board) == true)
+      {
+        SingleMoveGen gen_mv;
+
+        gen_mv.src        = piece_src_sq[0];
+        gen_mv.desc       = B_CASTLE_Q_SIDE_SQ;
+        gen_mv.piece_type = type;
+
+        moves_v.push_back(gen_mv);
+      }
     }
-  }
-  else if (site == Site::WHITE || piece_src_sq[0] == WHITE_KING_INIT_SQ)
-  {
-    move.sq_dest = W_CASTLE_K_SIDE_SQ;
-    if (is_move_valid(move, ally_board, enemy_board) == true)
+    else if (site == Site::WHITE || piece_src_sq[0] == WHITE_KING_INIT_SQ)
     {
-      SingleMoveGen gen_mv;
+      move.sq_dest = W_CASTLE_K_SIDE_SQ;
+      if (is_move_valid(move, ally_board, enemy_board) == true)
+      {
+        SingleMoveGen gen_mv;
 
-      gen_mv.src        = piece_src_sq[0];
-      gen_mv.desc       = W_CASTLE_K_SIDE_SQ;
-      gen_mv.piece_type = type;
+        gen_mv.src        = piece_src_sq[0];
+        gen_mv.desc       = W_CASTLE_K_SIDE_SQ;
+        gen_mv.piece_type = type;
 
-      moves_v.push_back(gen_mv);
-    }
+        moves_v.push_back(gen_mv);
+      }
 
-    move.sq_dest = W_CASTLE_Q_SIDE_SQ;
+      move.sq_dest = W_CASTLE_Q_SIDE_SQ;
 
-    if (is_move_valid(move, ally_board, enemy_board) == true)
-    {
-      SingleMoveGen gen_mv;
+      if (is_move_valid(move, ally_board, enemy_board) == true)
+      {
+        SingleMoveGen gen_mv;
 
-      gen_mv.src        = piece_src_sq[0];
-      gen_mv.desc       = W_CASTLE_Q_SIDE_SQ;
-      gen_mv.piece_type = type;
+        gen_mv.src        = piece_src_sq[0];
+        gen_mv.desc       = W_CASTLE_Q_SIDE_SQ;
+        gen_mv.piece_type = type;
 
-      moves_v.push_back(gen_mv);
+        moves_v.push_back(gen_mv);
+      }
     }
   }
 

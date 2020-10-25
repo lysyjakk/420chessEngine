@@ -28,6 +28,8 @@ private:
 
   int __negamax(int alpha, int beta, int depth);
   int __evaluate();
+  int __calculate_score(ChessBoard board,
+                        Site site);
 };
 
 #endif //NEGA_MAX_H_INCLUDED
