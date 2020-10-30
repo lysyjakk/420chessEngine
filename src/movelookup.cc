@@ -367,6 +367,7 @@ GenMoves MoveLookup::gen_moves_current_state(ChessBoard   ally_board,
   std::vector< std::size_t > piece_src_desc;
 
   move.site = site;
+  move.special_mv = special_mv;
   piece_src_sq = ally_board.pawns.scan_for_bit_index();
 
 //------------------------------------------------------------------->      Pawn

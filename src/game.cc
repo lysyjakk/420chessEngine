@@ -17,13 +17,13 @@ typedef high_resolution_clock Time;
 
 /* > Structs ******************************************************************/
 
-struct FieldSelectionPosition
+static struct FieldSelectionPosition
 {
   uint32_t x;
   uint32_t y;
 } field_selction_pos;
 
-struct SelectedPiece
+static struct SelectedPiece
 {
   uint32_t x;
   uint32_t y;
@@ -376,11 +376,15 @@ void Game::handle_event()
         else if (is_piece_grabbed == true)
         {
           is_piece_grabbed = false;
-          fixed_to_board_pos(field_selction_pos.x, field_selction_pos.y); 
+          uint32_t x_dest = (uint32_t)event.button.x;
+          uint32_t y_dest = (uint32_t)event.button.y;
+
+          fixed_to_board_pos(x_dest, y_dest);
+          
           game_manager.move_piece(selected_piece.x,
                                   FLIP_Y_AXIS(selected_piece.y),
-                                  field_selction_pos.x,
-                                  FLIP_Y_AXIS(field_selction_pos.y));
+                                  x_dest,
+                                  FLIP_Y_AXIS(y_dest));
         }
       }
     break;
@@ -392,11 +396,13 @@ void Game::handle_event()
     default:
       if (is_piece_grabbed == true)
       {
-        field_selction_pos.x = event.button.x;
-        field_selction_pos.y = event.button.y;
+        field_selction_pos.x = (uint32_t)event.button.x;
+        field_selction_pos.y = (uint32_t)event.button.y;
 
         fixed_to_board_pos(field_selction_pos.x, field_selction_pos.y);
         board_to_fixed_pos(field_selction_pos.x, field_selction_pos.y);
+
+        
       }
 
     break;

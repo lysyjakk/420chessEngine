@@ -141,15 +141,15 @@ BestMove NegaMax::get_best_move(ChessBoard   white_board,
   m_black_board = black_board;
   m_special_mv  = special_mv;
   m_site        = site;
-  std::cout << "\n\nscore: " << __evaluate() << "\n\n";
+  //std::cout << "\n\nscore: " << __evaluate() << "\n\n";
   __negamax(-50000, 50000, 4);
 
-/*  std::cout << "-------------------- src --------------------" << std::endl;
+  std::cout << "-------------------- src --------------------" << std::endl;
   Bitboard().set_bit_at(std::get<0>(best_move)).print();
   std::cout << "-------------------- desc -------------------" << std::endl;
   Bitboard().set_bit_at(std::get<1>(best_move)).print();
   std::cout << "\n---------------------------------------------" << std::endl;
-*/
+
   return best_move;
 }
 int node;
@@ -207,7 +207,7 @@ int NegaMax::__negamax(int alpha, int beta, int depth)
     m_special_mv = move.special_mv;
 
 
-    int dupa = __evaluate();
+   /* int dupa = __evaluate();
 
               std::cout << "-------------------- info --------------------" << std::endl;
   std::cout << "SITE: (" << (int)m_site << ")\n";
@@ -217,7 +217,7 @@ int NegaMax::__negamax(int alpha, int beta, int depth)
   Bitboard().set_bit_at(itr.src).print();
   std::cout << "-------------------- desc -------------------" << std::endl;
   Bitboard().set_bit_at(itr.desc).print();
-  std::cout << "\n---------------------------------------------" << std::endl;
+  std::cout << "\n---------------------------------------------" << std::endl;*/
 
 
     change_player_turn(m_site);
@@ -262,6 +262,10 @@ int NegaMax::__evaluate()
 
   // Calculate score for white
   score += __calculate_score(m_white_board, Site::WHITE);
+  //m_white_board.pawns.print();
+   //   std::vector<std::size_t> v = m_white_board.pawns.scan_for_bit_index();
+    //  for (int i = 0; i < v.size(); ++i)
+   // std::cout << v[i] << std::endl;
 
   // Calculate score for black
   score += __calculate_score(m_black_board, Site::BLACK);
@@ -289,33 +293,34 @@ int NegaMax::__calculate_score(ChessBoard board,
     switch (index)
     {
     case 1: //Pawns
+
       score_array = pawn_score;
-      score += material_score[PAWN_INDEX + modifier];
+      score += ( material_score[PAWN_INDEX + modifier] * v.size() );
     break;
 
     case 2: //Rook
       score_array = rook_score;
-      score += material_score[ROOK_INDEX + modifier];
+      score += ( material_score[ROOK_INDEX + modifier] * v.size() );
     break;
 
     case 3: //Knights
       score_array = knight_score;
-      score += material_score[KNIGHT_INDEX + modifier];
+      score += ( material_score[KNIGHT_INDEX + modifier] * v.size() );
     break;
 
     case 4: //Bishop
       score_array = bishop_score;
-      score += material_score[BISHOP_INDEX + modifier];
+      score += ( material_score[BISHOP_INDEX + modifier]* v.size() );
     break;
 
     case 5: //Queen
-      score += material_score[QUEEN_INDEX + modifier];
+      score += ( material_score[QUEEN_INDEX + modifier] * v.size() );
       continue;
     break;
 
     case 6: //King
       score_array = king_score;
-      score += material_score[KING_INDEX + modifier];
+      score += ( material_score[KING_INDEX + modifier] * v.size() );
     break;
 
     default:
