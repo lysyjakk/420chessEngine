@@ -143,28 +143,76 @@ bool MoveLookup::is_move_valid(MoveToMake move,
 
   m_ally_board    = ally_board;
   m_enemy_board   = enemy_board;
-  m_white_board   = move.site == Site::BLACK ? &enemy_board : &ally_board;
-  m_black_board   = move.site == Site::BLACK ? &ally_board : &enemy_board;
+  m_white_board   = move.site == Site::BLACK ? &m_enemy_board : &m_ally_board;
+  m_black_board   = move.site == Site::BLACK ? &m_ally_board : &m_enemy_board;
   m_special_moves = move.special_mv;
 
+  //Check if square is not occupatfalsee by ally
   if (__is_sq_occupate_by(move.sq_dest, move.site))
   {
-    //TRACE_INFO("DUPA1");
     result = false;
   }
+  //Check if move is leagal
   else if ( !__is_move_correct(move.sq_src,
                                move.sq_dest,
                                move.piece_type,
                                move.site) )
   {
-   // TRACE_INFO("DUPA2");
     result = false;
   }
-  //else if(__is_king_checked(site))
-  //{
-    //TRACE_INFO("DUPA3");
-    //result = false;
-  //}
+
+  //Check if king is under the attack
+  if(result == true)
+  {
+    switch (move.piece_type)
+    {
+      case WHITE_PAWN:
+      case BLACK_PAWN:
+        m_ally_board.pawns &= ~Bitboard().set_bit_at(move.sq_src);
+        m_ally_board.pawns |= Bitboard().set_bit_at(move.sq_dest);
+      break;
+
+      case WHITE_BISHOP:
+      case BLACK_BISHOP:
+        m_ally_board.bishops &= ~Bitboard().set_bit_at(move.sq_src);
+        m_ally_board.bishops |= Bitboard().set_bit_at(move.sq_dest);
+      break;
+
+      case WHITE_KNIGHT:
+      case BLACK_KNIGHT:
+        m_ally_board.knights &= ~Bitboard().set_bit_at(move.sq_src);
+        m_ally_board.knights |= Bitboard().set_bit_at(move.sq_dest);
+      break;
+
+      case WHITE_ROOK:
+      case BLACK_ROOK:
+        m_ally_board.rooks &= ~Bitboard().set_bit_at(move.sq_src);
+        m_ally_board.rooks |= Bitboard().set_bit_at(move.sq_dest);
+      break;
+
+      case WHITE_QUEEN:
+      case BLACK_QUEEN:
+        m_ally_board.queens &= ~Bitboard().set_bit_at(move.sq_src);
+        m_ally_board.queens |= Bitboard().set_bit_at(move.sq_dest);
+      break;
+
+      case WHITE_KING:
+      case BLACK_KING:
+        m_ally_board.king &= ~Bitboard().set_bit_at(move.sq_src);
+        m_ally_board.king |= Bitboard().set_bit_at(move.sq_dest);
+      break;
+
+      default:
+      break;
+    }
+
+    __remove_piece_at_sq(move.sq_dest, &m_enemy_board);
+
+    if(__is_king_checked(move.site))
+    {
+      result = false;
+    }
+  }
 
   return result;
 }
@@ -680,6 +728,18 @@ bool MoveLookup:: is_king_checkmate(Site site)
   return result;
 }
 
+bool MoveLookup::is_king_check(ChessBoard ally_board,
+                               ChessBoard enemy_board,
+                               Site site)
+{
+  m_white_board   = site == Site::BLACK ? &enemy_board
+                                        : &ally_board;
+  m_black_board   = site == Site::BLACK ? &ally_board
+                                        : &enemy_board;
+
+  return __is_king_checked(site);
+}
+
 bool MoveLookup::__is_sq_attacked(std::size_t sq, Site site)
 {
   ChessBoard  board = site == Site::BLACK ? *m_black_board
@@ -1065,8 +1125,10 @@ bool MoveLookup::__is_sq_occupate_by(std::size_t sq,
 bool MoveLookup::__is_king_checked(Site site)
 {
     bool result = false;
+
     Bitboard king = site == Site::BLACK ? m_black_board -> king
                                         : m_white_board -> king;
+
     Site opponent = site == Site::BLACK ? Site::WHITE
                                         : Site::BLACK;
 

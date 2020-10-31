@@ -130,6 +130,10 @@ public:
 
   bool is_king_checkmate(Site site);
 
+  bool is_king_check(ChessBoard ally_board,
+                     ChessBoard enemy_board,
+                     Site site);
+
 
 private:
   ChessBoard   m_ally_board;

@@ -13,6 +13,8 @@ public:
   NegaMax()  = default;
   ~NegaMax() = default;
 
+  void init();
+
   BestMove get_best_move(ChessBoard   white_board,
                          ChessBoard   black_board,
                          Site         site,

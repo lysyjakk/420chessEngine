@@ -20,9 +20,6 @@ enum {
   a8, b8, c8, d8, e8, f8, g8, h8, no_sq
 };
 
-static ChessBoard *ally_board;
-static ChessBoard *enemy_board;
-
 static int half_move;
 
 static BestMove best_move;
@@ -131,28 +128,27 @@ const int mirror_score[64] =
   a1, b1, c1, d1, e1, f1, g1, h1
 };
 
+void NegaMax::init()
+{
+  m_lookup.init();
+
+  return;
+}
+
 BestMove NegaMax::get_best_move(ChessBoard   white_board,
                                 ChessBoard   black_board,
                                 Site         site,
                                 SpecialMoves special_mv)
 {
-  m_lookup.init();
   m_white_board = white_board;
   m_black_board = black_board;
   m_special_mv  = special_mv;
   m_site        = site;
-  //std::cout << "\n\nscore: " << __evaluate() << "\n\n";
-  __negamax(-50000, 50000, 4);
 
-  std::cout << "-------------------- src --------------------" << std::endl;
-  Bitboard().set_bit_at(std::get<0>(best_move)).print();
-  std::cout << "-------------------- desc -------------------" << std::endl;
-  Bitboard().set_bit_at(std::get<1>(best_move)).print();
-  std::cout << "\n---------------------------------------------" << std::endl;
+  __negamax(-50000, 50000, 2);
 
   return best_move;
 }
-int node;
 
 
 int NegaMax::__negamax(int alpha, int beta, int depth)
@@ -165,7 +161,11 @@ int NegaMax::__negamax(int alpha, int beta, int depth)
   GenMoves legal_mv;
   BestMove best_mv_sofar;
 
+  ChessBoard *ally_board;
+  ChessBoard *enemy_board;
+
   int old_alpha = alpha;
+  int legal_moves = 0;
 
   if (m_site == Site::WHITE)
   {
@@ -177,6 +177,10 @@ int NegaMax::__negamax(int alpha, int beta, int depth)
     ally_board  = &m_black_board;
     enemy_board = &m_white_board;
   }
+
+  bool is_check = m_lookup.is_king_check(*ally_board,
+                                         *enemy_board,
+                                         m_site);
 
   legal_mv = m_lookup.gen_moves_current_state(*ally_board,
                                               *enemy_board,
@@ -205,23 +209,9 @@ int NegaMax::__negamax(int alpha, int beta, int depth)
     m_lookup.make_move(&move, ally_board, enemy_board);
 
     m_special_mv = move.special_mv;
-
-
-   /* int dupa = __evaluate();
-
-              std::cout << "-------------------- info --------------------" << std::endl;
-  std::cout << "SITE: (" << (int)m_site << ")\n";
-  std::cout << "NODE: (" << node << ")\n";
-  std::cout << "SCORE: (" << dupa << ")\n";
-  std::cout << "-------------------- src --------------------" << std::endl;
-  Bitboard().set_bit_at(itr.src).print();
-  std::cout << "-------------------- desc -------------------" << std::endl;
-  Bitboard().set_bit_at(itr.desc).print();
-  std::cout << "\n---------------------------------------------" << std::endl;*/
-
-
     change_player_turn(m_site);
-    node++;
+    ++legal_moves;
+
     int score = -__negamax(-beta, -alpha, depth - 1);
 
     --half_move;
@@ -247,6 +237,20 @@ int NegaMax::__negamax(int alpha, int beta, int depth)
       }
     }
   }
+
+  if (legal_moves == 0)
+  {
+    //Is king under attack
+    if (is_check == true)
+    {
+      return -49000 + half_move;
+    }
+    //Stalemate
+    else
+    {
+      return 0;
+    }
+  }
   
   if (old_alpha != alpha)
   {
@@ -262,10 +266,6 @@ int NegaMax::__evaluate()
 
   // Calculate score for white
   score += __calculate_score(m_white_board, Site::WHITE);
-  //m_white_board.pawns.print();
-   //   std::vector<std::size_t> v = m_white_board.pawns.scan_for_bit_index();
-    //  for (int i = 0; i < v.size(); ++i)
-   // std::cout << v[i] << std::endl;
 
   // Calculate score for black
   score += __calculate_score(m_black_board, Site::BLACK);
@@ -331,14 +331,14 @@ int NegaMax::__calculate_score(ChessBoard board,
     {
       for (int i = 0; i < v.size(); ++i)
       {
-        score += score_array[ v[i] ];
+        score += score_array[ mirror_score[v[i]] ];
       }
     }
     else
     {
       for (int i = 0; i < v.size(); ++i)
       {
-        score -= score_array[ mirror_score[v[i]] ];
+        score -= score_array[ v[i] ];
       }
     }
 
